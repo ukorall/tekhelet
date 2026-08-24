@@ -47,7 +47,9 @@ data class KnotMethod(
     val fullDescription: String,
     val editorialNote: String? = null, // "שיקולים בשלוף" - הערכה אישית חופשית, כפי שמופיע בשיחות
     val era: Era,
-    val communityTags: List<String> = emptyList(), // למשל ["chabad"], ["general"], ["radzin"]
+    // תגיות זיקה: קהילה/חסידות, אך גם פוסק מועדף, נטייה קבלית, דמיון לקשירה בלבן וכו' -
+    // כל מה שנבדק מול שאלת ה"הטיה" (q_affinity_bias). למשל ["chabad"], ["general"], ["posek-rambam"]
+    val affinityTags: List<String> = emptyList(),
     val axisScores: Map<Axis, Int>,   // 0-10 לכל ציר, ראו Axis
     val variants: List<MethodVariant> = emptyList(),
     val sources: List<SourceRef> = emptyList(),
@@ -65,8 +67,8 @@ enum class QuestionStage { PRIMARY, SECONDARY }
 data class QuestionOption(
     val id: String,
     val label: String,
-    // תגית קהילה/עידן שהאופציה הזו "מתאימה" אליה, לצורך בונוס/סינון
-    val matchesCommunityTag: String? = null,
+    // תגית זיקה/עידן שהאופציה הזו "מתאימה" אליה, לצורך בונוס/סינון (ראו affinityTags למעלה)
+    val matchesAffinityTag: String? = null,
     val matchesEra: Era? = null,
     // אם true, בחירה באופציה זו מהווה סינון קשיח (לא רק העדפה)
     val hardFilter: Boolean = false

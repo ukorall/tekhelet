@@ -1,10 +1,11 @@
 package org.tekhelet.knotadvisor.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.Answer
@@ -12,61 +13,80 @@ import org.tekhelet.knotadvisor.model.Question
 import org.tekhelet.knotadvisor.model.QuestionType
 import org.tekhelet.knotadvisor.ui.AppViewModel
 
+/**
+ * כל שאלות השלב הראשי מוצגות כאן במסך אחד גלול, כדי שאפשר יהיה לראות את כל השאלון
+ * בבת אחת ולחזור לתקן תשובה קודמת בלי לנווט קדימה-אחורה בין מסכים. שאלות סליידר
+ * מקבלות ערך ניטרלי (5) כברירת מחדל כשהמסך נפתח, כך שכפתור הסיום תמיד זמין.
+ */
 @Composable
 fun QuestionnaireScreen(
     viewModel: AppViewModel,
     onFinishedPrimaryQuestions: () -> Unit
 ) {
     val questions = viewModel.primaryQuestions
-    var index by rememberSaveable { mutableIntStateOf(0) }
 
-    if (index >= questions.size) {
-        LaunchedEffect(Unit) { onFinishedPrimaryQuestions() }
-        return
+    LaunchedEffect(Unit) {
+        questions
+            .filter { it.type == QuestionType.SLIDER && viewModel.answerFor(it.id) == null }
+            .forEach { viewModel.setAnswer(Answer(questionId = it.id, sliderValue = 5)) }
     }
 
-    val question = questions[index]
-    val progress = (index + 1) / questions.size.toFloat()
+    Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(24.dp)
+        ) {
+            Text("השאלון", style = MaterialTheme.typography.headlineSmall)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                "כל השאלות במסך אחד - אפשר לגלול, לשנות תשובה בכל שלב, ולסיים מתי שנוח.",
+                style = MaterialTheme.typography.bodySmall
+            )
+            Spacer(Modifier.height(24.dp))
 
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        LinearProgressIndicator(progress = { progress }, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(8.dp))
-        Text("שאלה ${index + 1} מתוך ${questions.size}", style = MaterialTheme.typography.labelMedium)
-        Spacer(Modifier.height(24.dp))
-        Text(question.text, style = MaterialTheme.typography.titleLarge)
-        question.helpText?.let {
-            Spacer(Modifier.height(8.dp))
-            Text(it, style = MaterialTheme.typography.bodySmall)
-        }
-        Spacer(Modifier.height(24.dp))
-
-        var canProceed by remember(question.id) { mutableStateOf(hasExistingAnswer(viewModel, question)) }
-
-        when (question.type) {
-            QuestionType.SLIDER -> SliderQuestion(viewModel, question) { canProceed = true }
-            QuestionType.SINGLE_CHOICE -> SingleChoiceQuestion(viewModel, question) { canProceed = true }
-            QuestionType.BOOLEAN -> BooleanQuestion(viewModel, question) { canProceed = true }
-            QuestionType.MULTI_CHOICE -> SingleChoiceQuestion(viewModel, question) { canProceed = true } // v0.1: מתנהג כבחירה יחידה
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            OutlinedButton(onClick = { if (index > 0) index-- }, enabled = index > 0) {
-                Text("הקודם")
+            questions.forEachIndexed { index, question ->
+                QuestionBlock(viewModel, question)
+                if (index != questions.lastIndex) {
+                    Spacer(Modifier.height(20.dp))
+                    HorizontalDivider()
+                    Spacer(Modifier.height(20.dp))
+                }
             }
-            Button(onClick = { index++ }, enabled = canProceed) {
-                Text(if (index == questions.size - 1) "סיום" else "הבא")
+        }
+
+        Surface(tonalElevation = 3.dp) {
+            Button(
+                onClick = onFinishedPrimaryQuestions,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
+            ) {
+                Text("הצג תוצאות")
             }
         }
     }
 }
 
-private fun hasExistingAnswer(viewModel: AppViewModel, question: Question): Boolean =
-    viewModel.answerFor(question.id) != null
+@Composable
+private fun QuestionBlock(viewModel: AppViewModel, question: Question) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(question.text, style = MaterialTheme.typography.titleMedium)
+        question.helpText?.let {
+            Spacer(Modifier.height(4.dp))
+            Text(it, style = MaterialTheme.typography.bodySmall)
+        }
+        Spacer(Modifier.height(12.dp))
+        when (question.type) {
+            QuestionType.SLIDER -> SliderQuestion(viewModel, question)
+            QuestionType.SINGLE_CHOICE -> SingleChoiceQuestion(viewModel, question)
+            QuestionType.MULTI_CHOICE -> MultiChoiceQuestion(viewModel, question)
+            QuestionType.BOOLEAN -> BooleanQuestion(viewModel, question)
+        }
+    }
+}
 
 @Composable
-private fun SliderQuestion(viewModel: AppViewModel, question: Question, onAnswered: () -> Unit) {
+private fun SliderQuestion(viewModel: AppViewModel, question: Question) {
     var value by remember(question.id) {
         mutableFloatStateOf((viewModel.answerFor(question.id)?.sliderValue ?: 5).toFloat())
     }
@@ -76,7 +96,6 @@ private fun SliderQuestion(viewModel: AppViewModel, question: Question, onAnswer
         onValueChange = {
             value = it
             viewModel.setAnswer(Answer(questionId = question.id, sliderValue = it.toInt()))
-            onAnswered()
         },
         valueRange = 1f..10f,
         steps = 8
@@ -84,7 +103,7 @@ private fun SliderQuestion(viewModel: AppViewModel, question: Question, onAnswer
 }
 
 @Composable
-private fun SingleChoiceQuestion(viewModel: AppViewModel, question: Question, onAnswered: () -> Unit) {
+private fun SingleChoiceQuestion(viewModel: AppViewModel, question: Question) {
     var selected by remember(question.id) {
         mutableStateOf(viewModel.answerFor(question.id)?.selectedOptionIds?.firstOrNull())
     }
@@ -96,14 +115,12 @@ private fun SingleChoiceQuestion(viewModel: AppViewModel, question: Question, on
                     .selectable(selected = option.id == selected) {
                         selected = option.id
                         viewModel.setAnswer(Answer(questionId = question.id, selectedOptionIds = listOf(option.id)))
-                        onAnswered()
                     }
-                    .padding(vertical = 8.dp)
+                    .padding(vertical = 6.dp)
             ) {
                 RadioButton(selected = option.id == selected, onClick = {
                     selected = option.id
                     viewModel.setAnswer(Answer(questionId = question.id, selectedOptionIds = listOf(option.id)))
-                    onAnswered()
                 })
                 Spacer(Modifier.width(8.dp))
                 Text(option.label, style = MaterialTheme.typography.bodyLarge)
@@ -113,7 +130,32 @@ private fun SingleChoiceQuestion(viewModel: AppViewModel, question: Question, on
 }
 
 @Composable
-private fun BooleanQuestion(viewModel: AppViewModel, question: Question, onAnswered: () -> Unit) {
+private fun MultiChoiceQuestion(viewModel: AppViewModel, question: Question) {
+    var selected by remember(question.id) {
+        mutableStateOf(viewModel.answerFor(question.id)?.selectedOptionIds?.toSet() ?: emptySet())
+    }
+    fun toggle(optionId: String) {
+        selected = if (optionId in selected) selected - optionId else selected + optionId
+        viewModel.setAnswer(Answer(questionId = question.id, selectedOptionIds = selected.toList()))
+    }
+    Column {
+        question.options.forEach { option ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(selected = option.id in selected) { toggle(option.id) }
+                    .padding(vertical = 6.dp)
+            ) {
+                Checkbox(checked = option.id in selected, onCheckedChange = { toggle(option.id) })
+                Spacer(Modifier.width(8.dp))
+                Text(option.label, style = MaterialTheme.typography.bodyLarge)
+            }
+        }
+    }
+}
+
+@Composable
+private fun BooleanQuestion(viewModel: AppViewModel, question: Question) {
     var value by remember(question.id) { mutableStateOf(viewModel.answerFor(question.id)?.booleanValue) }
     Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
         FilterChip(
@@ -121,7 +163,6 @@ private fun BooleanQuestion(viewModel: AppViewModel, question: Question, onAnswe
             onClick = {
                 value = true
                 viewModel.setAnswer(Answer(questionId = question.id, booleanValue = true))
-                onAnswered()
             },
             label = { Text("כן") }
         )
@@ -130,7 +171,6 @@ private fun BooleanQuestion(viewModel: AppViewModel, question: Question, onAnswe
             onClick = {
                 value = false
                 viewModel.setAnswer(Answer(questionId = question.id, booleanValue = false))
-                onAnswered()
             },
             label = { Text("לא") }
         )

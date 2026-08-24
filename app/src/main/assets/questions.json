@@ -84,16 +84,18 @@
       ]
     },
     {
-      "id": "q_community_affiliation",
-      "text": "האם יש לך זיקה לחסידות או לקהילה מסוימת שרלוונטית לבחירת שיטת הקשירה?",
-      "type": "SINGLE_CHOICE",
+      "id": "q_affinity_bias",
+      "text": "האם יש סיבה להטות את ההחלטה לכיוון של קהילה ספציפית או פוסק מועדף?",
+      "helpText": "אפשר לסמן כמה שרלוונטי, או להשאיר ריק אם אין הטיה מיוחדת. הרשימה תתעדכן בהמשך לפי התוכן שתשלח/י (למשל זיקה לחסידות ספציפית).",
+      "type": "MULTI_CHOICE",
       "stage": "PRIMARY",
       "axis": null,
       "options": [
-        { "id": "none", "label": "אין זיקה מיוחדת / מנהג כללי", "matchesCommunityTag": "general" },
-        { "id": "chabad", "label": "חב\"ד", "matchesCommunityTag": "chabad" },
-        { "id": "radzin", "label": "רדזין", "matchesCommunityTag": "radzin" },
-        { "id": "other", "label": "קהילה/חסידות אחרת (יפורט בהמשך הפיתוח)", "matchesCommunityTag": null }
+        { "id": "gra_minhag", "label": "מנהג משפחתי על פי הגר\"א", "matchesAffinityTag": "gra-minhag" },
+        { "id": "chassidic", "label": "זיקה (כללית) לחסידות", "matchesAffinityTag": "chassidic" },
+        { "id": "kabbalistic", "label": "נטייה לכיוונים קבליים", "matchesAffinityTag": "kabbalistic" },
+        { "id": "white_resemblance", "label": "העדפה לדמיון לצורת הקשירה הרגילה בחוטי הלבן", "matchesAffinityTag": "white-resemblance" },
+        { "id": "rambam_posek", "label": "העדפה להתבסס דווקא על הרמב\"ם כפוסק", "matchesAffinityTag": "posek-rambam" }
       ]
     },
     {

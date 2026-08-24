@@ -10,8 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 
+/** מסך הבית של אזור "איך" (בחירת שיטת קשירה) - מגיעים אליו מ-TopicsHomeScreen. */
 @Composable
-fun HomeScreen(
+fun HowHomeScreen(
     onStartQuestionnaire: () -> Unit,
     onBrowseLibrary: () -> Unit,
     onOpenHistory: () -> Unit
@@ -24,7 +25,7 @@ fun HomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(Modifier.height(32.dp))
-        Text("בורר קשירת תכלית", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
+        Text("איך? - שיטת קשירה", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
         Spacer(Modifier.height(12.dp))
         Text(
             "כלי עזר לבחירת שיטת קשירה בתכלת, לאחר שכבר הוחלט לקשור תכלת בציצית. " +

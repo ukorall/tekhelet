@@ -8,7 +8,7 @@ import kotlin.math.abs
  * תוך חיקוי תהליך החשיבה שמופיע בשיחות המקור:
  *  1. סינון קשיח של שיטות שנפסלות מראש (למשל: לא בני-זמננו, אם המשתמש ביקש כך).
  *  2. ניקוד משוקלל לפי חשיבות שהמשתמש נתן לכל ציר, מול "כמה כל שיטה מקיימת" אותו ציר.
- *  3. בונוס זיקה קהילתית/חסידית, אם רלוונטי.
+ *  3. בונוס הטיה (קהילה/פוסק מועדף/נטייה קבלית/דמיון לקשירה בלבן וכו'), אם רלוונטי.
  *  4. זיהוי מתי נדרשות שאלות משנה (SECONDARY) - הכרעת שוויון או בחירת variant.
  */
 object ScoringEngine {
@@ -27,10 +27,10 @@ object ScoringEngine {
         val eligible = methods.filter { method -> passesHardFilters(method, questionById, answerByQuestionId) }
 
         val weightedTerms = buildWeightedTerms(questions, answerByQuestionId)
-        val communityTerm = buildCommunityTerm(questionById, answerByQuestionId)
+        val affinityTags = buildAffinityTags(questionById, answerByQuestionId)
 
         return eligible
-            .map { method -> scoreOne(method, weightedTerms, communityTerm) }
+            .map { method -> scoreOne(method, weightedTerms, affinityTags) }
             .sortedByDescending { it.score }
     }
 
@@ -47,16 +47,19 @@ object ScoringEngine {
             WeightedTerm(q.axis!!, value / 10.0)
         }
 
-    private fun buildCommunityTerm(
+    /**
+     * שאלת ה"הטיה" (q_affinity_bias) היא MULTI_CHOICE - המשתמש יכול לבחור כמה סיבות
+     * הטיה בבת אחת (מנהג לפי הגר"א, זיקה לחסידות, קבלה, דמיון לקשירה בלבן, פוסק מועדף וכו').
+     */
+    private fun buildAffinityTags(
         questionById: Map<String, Question>,
         answerByQuestionId: Map<String, Answer>
-    ): String? {
-        val question = questionById["q_community_affiliation"] ?: return null
-        val answer = answerByQuestionId["q_community_affiliation"] ?: return null
-        val selectedId = answer.selectedOptionIds.firstOrNull() ?: return null
-        val option = question.options.find { it.id == selectedId } ?: return null
-        val tag = option.matchesCommunityTag ?: return null
-        return if (tag == "general") null else tag
+    ): List<String> {
+        val question = questionById["q_affinity_bias"] ?: return emptyList()
+        val answer = answerByQuestionId["q_affinity_bias"] ?: return emptyList()
+        return answer.selectedOptionIds.mapNotNull { selectedId ->
+            question.options.find { it.id == selectedId }?.matchesAffinityTag
+        }
     }
 
     private fun passesHardFilters(
@@ -79,7 +82,7 @@ object ScoringEngine {
     private fun scoreOne(
         method: KnotMethod,
         weightedTerms: List<WeightedTerm>,
-        communityTag: String?
+        affinityTags: List<String>
     ): ScoredMethod {
         val axisBreakdown = mutableMapOf<Axis, Double>()
         var numerator = 0.0
@@ -93,10 +96,11 @@ object ScoringEngine {
             axisBreakdown[term.axis] = (axisBreakdown[term.axis] ?: 0.0) + contribution
         }
 
-        if (communityTag != null) {
-            val matches = method.communityTags.contains(communityTag)
-            val communityValue = if (matches) 10.0 else 0.0
-            numerator += communityValue
+        // בונוס הטיה: יחס התגיות שהמשתמש בחר שהשיטה הזו אכן מקיימת (0..1 * משקל 10),
+        // ולא רק "הכל או כלום" - כך בחירה בכמה סיבות הטיה בבת אחת עדיין מבחינה בין שיטות.
+        if (affinityTags.isNotEmpty()) {
+            val matchedCount = affinityTags.count { method.affinityTags.contains(it) }
+            numerator += (matchedCount.toDouble() / affinityTags.size) * 10.0
             denominator += 10.0
         }
 
@@ -106,14 +110,14 @@ object ScoringEngine {
             method = method,
             score = score,
             axisBreakdown = axisBreakdown,
-            explanation = buildExplanation(method, axisBreakdown, communityTag)
+            explanation = buildExplanation(method, axisBreakdown, affinityTags)
         )
     }
 
     private fun buildExplanation(
         method: KnotMethod,
         axisBreakdown: Map<Axis, Double>,
-        communityTag: String?
+        affinityTags: List<String>
     ): String {
         val topAxes = axisBreakdown.entries
             .sortedByDescending { it.value }
@@ -124,8 +128,9 @@ object ScoringEngine {
         if (topAxes.isNotEmpty()) {
             parts.add("השיטה הזו מתאימה לך בעיקר לפי: ${topAxes.joinToString(" ו")}.")
         }
-        if (communityTag != null && method.communityTags.contains(communityTag)) {
-            parts.add("היא גם תואמת את הזיקה הקהילתית/חסידית שציינת.")
+        val matchedTags = affinityTags.filter { method.affinityTags.contains(it) }
+        if (matchedTags.isNotEmpty()) {
+            parts.add("היא גם תואמת את ההטיה שציינת (${matchedTags.joinToString(", ")}).")
         }
         method.editorialNote?.let { parts.add(it) }
         return parts.joinToString(" ")
