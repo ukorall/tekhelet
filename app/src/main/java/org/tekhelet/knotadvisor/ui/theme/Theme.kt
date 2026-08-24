@@ -1,19 +1,23 @@
 package org.tekhelet.knotadvisor.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
-// פלטת צבעים בהשראת תכלת: כל הגוונים השולטים נעים על סקאלה אחת בין כחול עמוק ללבן,
-// בלי גוונים "זרים" לסקאלה (לא חום/קרם/אפור ניטרלי) - גם בערכת הכהה.
-private val TekhletBlue900 = Color(0xFF0D2A52) // הכי כהה - כמעט נייבי
-private val TekhletBlue700 = Color(0xFF1B3A6B) // ראשי
-private val TekhletBlue500 = Color(0xFF3E5C8A)
-private val TekhletBlue300 = Color(0xFF7E9DC8)
-private val TekhletBlue100 = Color(0xFFCBDAEE)
-private val TekhletBlue50 = Color(0xFFEAF1FA) // כמעט לבן, עדיין עם גוון כחול עדין
+// פלטת צבעים בהשראת תכלת: כל הגוונים השולטים נעים על סקאלה אחת בין כחול ללבן,
+// בלי גוונים "זרים" לסקאלה (לא חום/קרם/אפור ניטרלי) - גם בערכת הכהה. הגוון הראשי
+// כוון לפי תצלומי חוט תכלת אמיתי (פתיל תכלת) - כחול-פלדה בינוני, לא נייבי כהה מדי.
+private val TekhletBlue900 = Color(0xFF0D2A48) // הכי כהה - עוגן ניגודיות
+private val TekhletBlue700 = Color(0xFF2F5C88) // ראשי - קרוב לגוון החוט בתצלומים
+private val TekhletBlue500 = Color(0xFF4C7BAA)
+private val TekhletBlue300 = Color(0xFF8AACCE)
+private val TekhletBlue100 = Color(0xFFD2E1F0)
+private val TekhletBlue50 = Color(0xFFEFF5FB) // כמעט לבן, עדיין עם גוון כחול עדין
 private val TekhletWhite = Color(0xFFFFFFFF)
 
 private val LightColors = lightColorScheme(
@@ -58,10 +62,20 @@ private val DarkColors = darkColorScheme(
     outline = TekhletBlue500
 )
 
+// פינות מעוגלות רכות יותר מברירת המחדל - בהשראת המרקם הרך של הבד והחוט בתצלומים.
+private val KnotShapes = Shapes(
+    extraSmall = RoundedCornerShape(6.dp),
+    small = RoundedCornerShape(10.dp),
+    medium = RoundedCornerShape(16.dp),
+    large = RoundedCornerShape(22.dp),
+    extraLarge = RoundedCornerShape(28.dp)
+)
+
 @Composable
 fun KnotAdvisorTheme(useDarkTheme: Boolean = false, content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = if (useDarkTheme) DarkColors else LightColors,
+        shapes = KnotShapes,
         content = content
     )
 }

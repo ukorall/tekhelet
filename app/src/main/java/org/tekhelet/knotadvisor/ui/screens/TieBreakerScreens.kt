@@ -33,7 +33,8 @@ fun WindCountTieBreakerScreen(viewModel: AppViewModel, onContinue: () -> Unit) {
 /**
  * שאלת משנה חזותית: כששני המועמדים המובילים צמודים בניקוד, מציגה אותם זה מול זה
  * ומבקשת מהמשתמש לבחור מה יפה בעיניו יותר - בדיוק כמו ההכרעה הסופית שקרתה בפועל
- * בשיחה שעליה מבוססת האפליקציה. כרגע מוצג placeholder לתמונה, עד שיסופקו תמונות אמיתיות.
+ * בשיחה שעליה מבוססת האפליקציה. מציגה תמונות אמיתיות אם קיימות (ראו AssetImages),
+ * אחרת placeholder כללי.
  */
 @Composable
 fun VisualTieBreakerScreen(viewModel: AppViewModel, onChoiceMade: () -> Unit) {
@@ -59,13 +60,8 @@ fun VisualTieBreakerScreen(viewModel: AppViewModel, onChoiceMade: () -> Unit) {
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(candidate.method.name, style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(4.dp))
-                        Text(
-                            if (candidate.method.imageAssets.isEmpty())
-                                "[מקום לתמונה - יתווסף בהמשך]"
-                            else "תמונה: ${candidate.method.imageAssets.first()}",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Spacer(Modifier.height(8.dp))
+                        MethodImages(candidate.method, imageHeight = 120.dp)
                     }
                 }
             }

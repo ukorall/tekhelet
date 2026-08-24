@@ -8,3 +8,7 @@ local.properties
 captures/
 .externalNativeBuild/
 .cxx/
+
+# מיוצר בזמן build מתוך content/ (ראו content/README.md ו-app/build.gradle.kts) - לא לגרסה
+app/src/main/assets/images/
+app/src/main/assets/texts.txt

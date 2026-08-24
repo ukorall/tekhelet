@@ -1,0 +1,17 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- "פתיל" מופשט - בד עליון ומספר חוטים לסירוגין, בגוונים מסולם הכחול-לבן.
+         משמש placeholder עד שתועלה תמונה אמיתית של השיטה (ראו AssetImages). -->
+    <path
+        android:fillColor="#2F5C88"
+        android:pathData="M14,10 h68 a8,8 0 0 1 8,8 v6 h-84 v-6 a8,8 0 0 1 8,-8 z" />
+    <path android:strokeColor="#2F5C88" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M22,26 L22,84" />
+    <path android:strokeColor="#8AACCE" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M34,26 L34,76" />
+    <path android:strokeColor="#2F5C88" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M46,26 L46,84" />
+    <path android:strokeColor="#8AACCE" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M58,26 L58,76" />
+    <path android:strokeColor="#2F5C88" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M70,26 L70,84" />
+    <path android:strokeColor="#8AACCE" android:strokeWidth="5" android:strokeLineCap="round" android:pathData="M74,26 L74,76" />
+</vector>

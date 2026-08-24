@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.Topic
+import org.tekhelet.knotadvisor.ui.components.KnotDivider
 
 /**
  * מסך הבית העליון של האפליקציה: בורר בין ארבעת אזורי הייעוץ (Topic). כרגע רק "איך"
@@ -26,7 +27,8 @@ fun TopicsHomeScreen(onSelectTopic: (Topic) -> Unit) {
     ) {
         Spacer(Modifier.height(24.dp))
         Text("בורר קשירת תכלת", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(12.dp))
+        KnotDivider(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
+        Spacer(Modifier.height(8.dp))
         Text(
             "כלי עזר להחלטות סביב הטלת תכלת בציצית. בחר/י באיזה שלב את/ה נמצא/ת:",
             style = MaterialTheme.typography.bodyMedium,

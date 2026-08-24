@@ -56,5 +56,26 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("androidx.datastore:datastore-preferences:1.1.1")
 
+    // טעינת תמונות קשירה מ-assets/images/<method-id>/ (ראו AssetImages.kt + content/README.md)
+    implementation("io.coil-kt:coil-compose:2.6.0")
+
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+// מסנכרן תוכן שמנוהל בתיקיית content/ בשורש הריפו (מחוץ למודול app) לתוך assets, כדי
+// שאפשר יהיה להוסיף תמונות/טקסטים בלי לגעת ב-app/src/main בכלל. ראו content/README.md.
+val syncContentImages by tasks.registering(Copy::class) {
+    description = "מעתיק תמונות קשירה מ-content/images/<method-id>/ לתוך app/src/main/assets/images/"
+    from(rootProject.layout.projectDirectory.dir("content/images"))
+    into(layout.projectDirectory.dir("src/main/assets/images"))
+}
+
+val syncContentTexts by tasks.registering(Copy::class) {
+    description = "מעתיק את content/texts.txt לתוך app/src/main/assets/, כדי ש-ContentRepository יוכל לפרסר אותו בזמן ריצה"
+    from(rootProject.layout.projectDirectory.file("content/texts.txt"))
+    into(layout.projectDirectory.dir("src/main/assets"))
+}
+
+tasks.named("preBuild") {
+    dependsOn(syncContentImages, syncContentTexts)
 }
