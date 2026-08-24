@@ -1,0 +1,133 @@
+{
+  "questions": [
+    {
+      "id": "q_affordability",
+      "text": "עד כמה חשוב לך שהקשירה תהיה זולה (פחות חוט, פחות עבודה)?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "AFFORDABILITY"
+    },
+    {
+      "id": "q_beauty",
+      "text": "עד כמה חשוב לך שהקשירה תהיה יפה למראה? (זה אלי ואנוהו - עיקרון הלכתי אמיתי)",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "BEAUTY"
+    },
+    {
+      "id": "q_rishonim_basis",
+      "text": "עד כמה חשוב לך שהשיטה תהיה מבוססת על ראשונים?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "RISHONIM_BASIS"
+    },
+    {
+      "id": "q_general_source_basis",
+      "text": "עד כמה חשוב לך שהשיטה תהיה מבוססת על מקורות באופן כללי (כולל גאונים, אחרונים, מחקר היסטורי)?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "GENERAL_SOURCE_BASIS"
+    },
+    {
+      "id": "q_commonness",
+      "text": "עד כמה חשוב לך שהשיטה תהיה 'רגילה' ונפוצה, ולא מיוחדת מדי?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "COMMONNESS"
+    },
+    {
+      "id": "q_uniqueness",
+      "text": "עד כמה חשוב לך שהשיטה תהיה מעניינת וייחודית, גם על גבול המעצבן?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "UNIQUENESS"
+    },
+    {
+      "id": "q_personal_clarity",
+      "text": "עד כמה חשוב לך שיהיה לך אישית ברור למה זו קשירה הגיונית - שתוכל להסביר את זה לעצמך ולאחרים?",
+      "helpText": "שאלה זו לא מדרגת שיטה מסוימת, אלא קובעת כמה הסבר מפורט להציג לך במסך התוצאות.",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": null
+    },
+    {
+      "id": "q_consensus_coverage",
+      "text": "עד כמה חשוב לך לצאת ידי חובה לפי כמה שיותר שיטות בבת אחת?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "CONSENSUS_COVERAGE"
+    },
+    {
+      "id": "q_named_attribution",
+      "text": "עד כמה חשוב לך שזו תהיה שיטה עם 'גב' - מיוחסת לראשון או למקור ספציפי וברור, ולא מיקס שהורכב בדורות האחרונים?",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "NAMED_ATTRIBUTION"
+    },
+    {
+      "id": "q_conservatism",
+      "text": "עד כמה חשוב לך שהשיטה תהיה שמרנית - קרובה למה שנהוג ורגיל אצלך כיום בקשירת הלבן?",
+      "helpText": "שאלה זו משמשת כרגע כקירוב לציר ה'נפוצות' הכללי. בהמשך אפשר לחדד אותה לפי המנהג האישי/המשפחתי שלך.",
+      "type": "SLIDER",
+      "stage": "PRIMARY",
+      "axis": "COMMONNESS"
+    },
+    {
+      "id": "q_contemporary_ok",
+      "text": "האם מקובל עליך לשקול גם שיטות שמקורן בפוסקים בני זמננו, או להישאר רק בגישות קלאסיות (ראשונים/גאונים/אחרונים)?",
+      "type": "SINGLE_CHOICE",
+      "stage": "PRIMARY",
+      "axis": null,
+      "options": [
+        { "id": "classic_only", "label": "רק קלאסי - ראשונים/גאונים/אחרונים", "hardFilter": true },
+        { "id": "contemporary_ok", "label": "גם שיטות של פוסקים בני זמננו בסדר מבחינתי", "hardFilter": false }
+      ]
+    },
+    {
+      "id": "q_community_affiliation",
+      "text": "האם יש לך זיקה לחסידות או לקהילה מסוימת שרלוונטית לבחירת שיטת הקשירה?",
+      "type": "SINGLE_CHOICE",
+      "stage": "PRIMARY",
+      "axis": null,
+      "options": [
+        { "id": "none", "label": "אין זיקה מיוחדת / מנהג כללי", "matchesCommunityTag": "general" },
+        { "id": "chabad", "label": "חב\"ד", "matchesCommunityTag": "chabad" },
+        { "id": "radzin", "label": "רדזין", "matchesCommunityTag": "radzin" },
+        { "id": "other", "label": "קהילה/חסידות אחרת (יפורט בהמשך הפיתוח)", "matchesCommunityTag": null }
+      ]
+    },
+    {
+      "id": "q_already_own_thread",
+      "text": "האם כבר קנית חוט תכלת ספציפי, שצריך לוודא שהשיטה הנבחרת מתאימה אליו (מבחינת אורך/מספר כריכות)?",
+      "helpText": "התשובה נשמרת יחד עם התוצאה, אך עדיין לא משפיעה אוטומטית על הניקוד בגרסה הנוכחית - שלב הבא הוא לצרף כאן זיהוי מוצר/יצרן.",
+      "type": "BOOLEAN",
+      "stage": "PRIMARY",
+      "axis": null
+    },
+    {
+      "id": "q_wind_count_preference",
+      "text": "בין המועמדות המובילות יש יותר מגרסת אורך אחת (למשל 7 מול 13 כריכות). איזו את/ה מעדיף/ה?",
+      "type": "SINGLE_CHOICE",
+      "stage": "SECONDARY",
+      "axis": null,
+      "triggerCondition": "מוצגת רק אם לאחת מהשיטות המובילות אחרי סבב השאלות הראשי יש כמה variants (למשל ראב\"ד או רמב\"ם).",
+      "options": [
+        { "id": "7", "label": "7 כריכות" },
+        { "id": "13", "label": "13 כריכות" },
+        { "id": "no_preference", "label": "אין לי העדפה - שיוצע לי בהתאם" }
+      ]
+    },
+    {
+      "id": "q_visual_preference",
+      "text": "אחרי שראית תמונות של המועמדות המובילות - מה הכי יפה בעיניך?",
+      "helpText": "האופציות במסך בפועל ייבנו דינמית מתוך רשימת השיטות המובילות באותו ריצה (ולא מרשימה קבועה). בחירה כאן דורסת את ציון היופי הכללי עבור אותה שיטה, בדיוק כמו שקרה בפועל באחת השיחות שהובילו לאפליקציה הזו.",
+      "type": "SINGLE_CHOICE",
+      "stage": "SECONDARY",
+      "axis": "BEAUTY",
+      "triggerCondition": "מוצגת כאשר שני מועמדים מובילים או יותר קרובים בציון הכולל (פער קטן מסף מסוים), כדי להכריע ביניהם על בסיס חזותי ולא רק חישובי.",
+      "options": [
+        { "id": "DYNAMIC_FROM_TOP_CANDIDATES", "label": "ייבנה דינמית בזמן ריצה מתוך המועמדות המובילות" }
+      ]
+    }
+  ]
+}
