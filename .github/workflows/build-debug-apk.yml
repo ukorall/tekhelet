@@ -1,0 +1,64 @@
+name: Build Debug APK
+
+on:
+  push:
+    branches:
+      - main
+      - "claude/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload APK as workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 14
+
+      - name: Publish APK to builds branch
+        run: |
+          APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n1)
+          mkdir -p /tmp/publish
+          cp "$APK_PATH" /tmp/publish/app-debug.apk
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git ls-remote --exit-code --heads origin builds >/dev/null 2>&1; then
+            git fetch origin builds
+            git checkout builds
+          else
+            git checkout --orphan builds
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          cp /tmp/publish/app-debug.apk app-debug.apk
+          echo "Built from commit ${{ github.sha }} on ${{ github.ref_name }} at $(date -u +%Y-%m-%dT%H:%M:%SZ)" > BUILD_INFO.txt
+          git add app-debug.apk BUILD_INFO.txt
+          git commit -m "Debug APK build from ${{ github.sha }}"
+          git push origin builds
