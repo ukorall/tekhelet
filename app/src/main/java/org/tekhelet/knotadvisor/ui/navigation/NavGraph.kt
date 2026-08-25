@@ -189,7 +189,7 @@ fun AppNavHost() {
             }
 
             composable(Routes.TIE_WIND) {
-                WindCountTieBreakerScreen(viewModel) {
+                WindCountTieBreakerScreen {
                     navigateAfterWindTieBreaker(navController, viewModel)
                 }
             }

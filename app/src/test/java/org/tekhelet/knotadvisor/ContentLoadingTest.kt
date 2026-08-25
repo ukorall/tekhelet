@@ -121,9 +121,13 @@ class ContentLoadingTest {
         val quiet = sliders.mapIndexed { i, q ->
             Answer(questionId = q.id, sliderValue = if (i % 2 == 0) 5 else 4)
         }
+        val loudRanking = ScoringEngine.score(methods, questions, loud).map { it.method.id }
+        val quietRanking = ScoringEngine.score(methods, questions, quiet).map { it.method.id }
         assertEquals(
-            ScoringEngine.score(methods, questions, loud).map { it.method.id },
-            ScoringEngine.score(methods, questions, quiet).map { it.method.id }
+            "אותה עדיפות יחסית בסולם אחר נתנה דירוג שונה - הנירמול לא עשה את שלו.\n" +
+                "סולם גבוה (10/8): $loudRanking\nסולם נמוך (5/4): $quietRanking",
+            loudRanking,
+            quietRanking
         )
     }
 

@@ -37,7 +37,6 @@ fun TyingGuideScreen(
     val composition = if (useCustom) initialComposition else (selected?.composition ?: KnotComposition())
 
     val steps = remember(composition) { TyingInstructions.generate(composition) }
-    val estimate = remember(composition) { ThreadLength.estimate(composition) }
     val summary = remember(composition) { GadilBuilder.summary(composition) }
     val recommendation = remember(composition) { Products.recommend(composition) }
 

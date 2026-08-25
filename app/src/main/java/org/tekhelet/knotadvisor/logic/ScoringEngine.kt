@@ -24,6 +24,9 @@ object ScoringEngine {
     private const val DEFAULT_RESULT_COUNT = 5
     private const val CURIOUS_RESULT_COUNT = 11
 
+    /** מעל איזה יחס-לממוצע נחשב שהמשתמש "רוצה להבין בעצמו". */
+    private const val CURIOUS_RATIO = 1.1
+
     data class Outcome(
         val ranked: List<ScoredMethod>,
         /** כמה תוצאות כדאי להציג בפועל - גדל כשהמשתמש רוצה להבין בעצמו. */
@@ -107,7 +110,8 @@ object ScoringEngine {
         val answerByQuestionId = answers.associateBy { it.questionId }
 
         val clarity = answerByQuestionId["q_personal_clarity"]?.sliderValue
-        val weights = buildNormalizedWeights(questions, answerByQuestionId, clarity)
+        val normalized = buildNormalizedWeights(questions, answerByQuestionId, clarity)
+        val weights = normalized.weights
         val affinityTags = buildAffinityTags(questionById, answerByQuestionId)
 
         val beautyWeight = weights[Axis.BEAUTY] ?: 1.0
@@ -118,7 +122,10 @@ object ScoringEngine {
 
         return Outcome(
             ranked = ranked,
-            suggestedVisibleCount = if ((clarity ?: 5) >= 7) CURIOUS_RESULT_COUNT else DEFAULT_RESULT_COUNT
+            // גם כאן הסף יחסי ולא מוחלט, מאותו טעם - ראו buildNormalizedWeights
+            suggestedVisibleCount =
+                if (normalized.clarityRatio >= CURIOUS_RATIO) CURIOUS_RESULT_COUNT
+                else DEFAULT_RESULT_COUNT
         )
     }
 
@@ -132,11 +139,14 @@ object ScoringEngine {
      * שווה לממוצע שלו מקבל משקל 1.0, מי שנתן יותר מקבל מעל 1.0, ומי שנתן פחות -
      * מתחת. כך מה שנשמר הוא סדר העדיפויות היחסי, שזה מה שבאמת התכוונו אליו.
      */
+    /** משקלים מנורמלים, יחד עם היחס-לממוצע של שאלת הבהירות. */
+    private data class Normalized(val weights: Map<Axis, Double>, val clarityRatio: Double)
+
     private fun buildNormalizedWeights(
         questions: List<Question>,
         answerByQuestionId: Map<String, Answer>,
         clarity: Int?
-    ): Map<Axis, Double> {
+    ): Normalized {
         val raw = questions
             .filter { it.stage == QuestionStage.PRIMARY && it.type == QuestionType.SLIDER && it.axis != null }
             .mapNotNull { q ->
@@ -145,16 +155,22 @@ object ScoringEngine {
             }
             .toMap()
 
-        if (raw.isEmpty()) return emptyMap()
+        if (raw.isEmpty()) return Normalized(emptyMap(), 1.0)
 
         val mean = raw.values.average().coerceAtLeast(0.5)
         val normalized = raw.mapValues { (_, v) -> (v / mean).coerceIn(0.15, 2.5) }.toMutableMap()
 
         // "בהירות אישית" אינה ציר שמנקד שיטה, אלא היא מגבירה את משקל ההסבר העצמי.
-        clarity?.let { c ->
-            if (c >= 6) normalized[Axis.EXPLAINABILITY] = (c / mean).coerceIn(0.15, 2.5)
-        }
-        return normalized
+        //
+        // חשוב שגם כאן ההשוואה תהיה **יחסית לממוצע של אותו משתמש** ולא סף מוחלט.
+        // קודם היה כאן `if (c >= 6)`, וזה סתר את כל הרעיון של הנירמול: מי שמשתמש
+        // בחלק התחתון של הסולם (נניח 5 לדברים הכי חשובים לו) לא קיבל בכלל את
+        // משקל ההסבר, גם אם הבהירות היתה העדיפות הראשונה שלו. בדיקת היחידה
+        // "normalisation makes equivalent answers rank the same" תפסה בדיוק את זה.
+        val clarityRatio = clarity?.let { (it / mean).coerceIn(0.15, 2.5) } ?: 1.0
+        if (clarity != null) normalized[Axis.EXPLAINABILITY] = clarityRatio
+
+        return Normalized(normalized, clarityRatio)
     }
 
     private fun buildAffinityTags(

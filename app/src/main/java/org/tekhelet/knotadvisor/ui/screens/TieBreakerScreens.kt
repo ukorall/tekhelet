@@ -14,7 +14,7 @@ import org.tekhelet.knotadvisor.ui.AppViewModel
  * v0.1: לא משנה עדיין את הניקוד, רק מציינת שיש לבחור variant במסך הפירוט של השיטה.
  */
 @Composable
-fun WindCountTieBreakerScreen(viewModel: AppViewModel, onContinue: () -> Unit) {
+fun WindCountTieBreakerScreen(onContinue: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Text("שאלת המשך: מספר כריכות", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(16.dp))
