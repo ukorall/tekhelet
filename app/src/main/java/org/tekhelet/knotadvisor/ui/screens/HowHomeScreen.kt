@@ -5,60 +5,54 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.ui.components.KnotDivider
 
-/** מסך הבית של אזור "איך" (בחירת שיטת קשירה) - מגיעים אליו מ-TopicsHomeScreen. */
 @Composable
 fun HowHomeScreen(
     onStartQuestionnaire: () -> Unit,
     onBrowseLibrary: () -> Unit,
-    onOpenHistory: () -> Unit
+    onOpenTree: () -> Unit,
+    onOpenBuilder: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)
     ) {
-        Spacer(Modifier.height(32.dp))
-        Text("איך? - שיטת קשירה", style = MaterialTheme.typography.headlineMedium, textAlign = TextAlign.Center)
-        KnotDivider(modifier = Modifier.padding(top = 12.dp, bottom = 4.dp))
-        Spacer(Modifier.height(8.dp))
+        Text("איך לקשור?", style = MaterialTheme.typography.headlineSmall)
+        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
         Text(
-            "כלי עזר לבחירת שיטת קשירה בתכלת, לאחר שכבר הוחלט לקשור תכלת בציצית. " +
-                "עונים על כמה שאלות על מה חשוב לכם, והאפליקציה מציעה שיטות מתאימות עם הסבר קצר.",
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
+            "יש כמה מימרות בגמרא שמדברות על הקשירה - איך נראה הגדיל, מספרי ליפופים, " +
+                "חוליות, קשרים. יש הרבה מחלוקות בפירוש המימרות ואיך ליישב ביניהן, " +
+                "וממילא יש הרבה מאוד שיטות קשירה.",
+            style = MaterialTheme.typography.bodyMedium
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         Text(
-            "\"לאחר שהוכרעו הזיהוי ומספר החוטים, לשאלת הקשירה כמעט אין משמעות הלכתית - " +
-                "נשאר רק הכלל של נוי מצווה, 'זה אלי ואנוהו': תבחר את השיטה הכי יפה בעיניך.\"",
-            style = MaterialTheme.typography.bodySmall.copy(fontStyle = FontStyle.Italic),
-            textAlign = TextAlign.Center
+            "שמעתי מהרב אחיה בן פזי בשם הרב ריסקין, שאחרי שהכרעת בשאלת הזיהוי ובשאלת " +
+                "מספר החוטים, לשאלת הקשירה אין אפילו חשיבות דרבנן לרוב השיטות. ובגלל " +
+                "שלאבותינו בדורות האחרונים לא היה תכלת, אין לנו מנהג, ונשארנו רק עם הכלל " +
+                "של נוי מצווה - \"זה אלי ואנוהו\". כלומר: תבחר את השיטה הכי יפה. תחשוב על זה.",
+            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)
         )
-        Text(
-            "- כפי ששמע אוריאל מהרב אחיה, בשם הרב ריסקין",
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center
-        )
-        Spacer(Modifier.height(24.dp))
+
+        Spacer(Modifier.height(22.dp))
         Button(onClick = onStartQuestionnaire, modifier = Modifier.fillMaxWidth()) {
-            Text("התחל שאלון")
+            Text("להתחיל את השאלון")
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = onOpenBuilder, modifier = Modifier.fillMaxWidth()) {
+            Text("לבנות הרכב בעצמי")
+        }
+        Spacer(Modifier.height(10.dp))
+        OutlinedButton(onClick = onOpenTree, modifier = Modifier.fillMaxWidth()) {
+            Text("מפת השיטות")
+        }
+        Spacer(Modifier.height(10.dp))
         OutlinedButton(onClick = onBrowseLibrary, modifier = Modifier.fillMaxWidth()) {
-            Text("עיון חופשי בכל השיטות")
+            Text("לעיין בכל השיטות")
         }
-        Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) {
-            Text("ייעוצים קודמים ששמרתי")
-        }
+        Spacer(Modifier.height(24.dp))
     }
 }

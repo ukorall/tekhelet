@@ -8,15 +8,23 @@ import kotlinx.serialization.Serializable
  * "higher user importance -> prefer methods with a higher value on this axis".
  */
 @Serializable
-enum class Axis {
-    AFFORDABILITY,        // זול
-    BEAUTY,                // יופי (ברירת מחדל עריכתית - ניתנת לעקיפה ע"י בחירה חזותית של המשתמש)
-    RISHONIM_BASIS,        // ביסוס בראשונים
-    GENERAL_SOURCE_BASIS,  // ביסוס מקורות כללי (כולל גאונים, אחרונים, מחקר)
-    COMMONNESS,             // נפוצות / "רגילות"
-    UNIQUENESS,             // ייחודיות מעניינת
-    CONSENSUS_COVERAGE,    // יוצא ידי חובה לפי כמה שיטות
-    NAMED_ATTRIBUTION       // "יש לזה גב" - מקור שמי ברור, לא תערובת מאוחרת
+enum class Axis(val label: String) {
+    AFFORDABILITY("עלות נמוכה"),
+    BEAUTY("יופי"),
+    RISHONIM_BASIS("ביסוס בראשונים"),
+    GENERAL_SOURCE_BASIS("ביסוס מקורות כללי"),
+    COMMONNESS("נפוצות"),
+    UNIQUENESS("ייחודיות"),
+    CONSENSUS_COVERAGE("כיסוי כמה שיטות"),
+    NAMED_ATTRIBUTION("מקור שמי ברור"),
+
+    /**
+     * כמה השיטה "מסבירה את עצמה" - עד כמה יש לה רציונל מפורש שאפשר לעקוב אחריו,
+     * בשונה משיטה שקיימת כמסורת אבל לא ברור איך הגיעו אליה.
+     * מזין את שאלה 7 (בהירות אישית): מי שחשוב לו להבין בעצמו למה זו קשירה הגיונית
+     * יקבל תיעדוף לשיטות מוסברות, וגם יראה יותר אפשרויות (ראו ScoringEngine).
+     */
+    EXPLAINABILITY("מידת ההסבר העצמי")
 }
 
 @Serializable

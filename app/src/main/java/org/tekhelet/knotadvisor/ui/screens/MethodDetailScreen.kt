@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -21,10 +22,12 @@ import coil.compose.AsyncImage
 import org.tekhelet.knotadvisor.R
 import org.tekhelet.knotadvisor.data.AssetImages
 import org.tekhelet.knotadvisor.model.KnotMethod
+import org.tekhelet.knotadvisor.logic.CompositionCoherence
 import org.tekhelet.knotadvisor.ui.components.CompositionCard
+import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 
 @Composable
-fun MethodDetailScreen(method: KnotMethod, onFinalize: (() -> Unit)? = null) {
+fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
     LazyColumn(modifier = Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         item {
             Text(method.name, style = MaterialTheme.typography.headlineSmall)
@@ -38,9 +41,32 @@ fun MethodDetailScreen(method: KnotMethod, onFinalize: (() -> Unit)? = null) {
         if (method.editorialNote != null) {
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(12.dp)) {
-                        Text("הערת עריכה", style = MaterialTheme.typography.labelLarge)
+                    Column(Modifier.padding(14.dp)) {
+                        Text("מה אני חושב על זה", style = MaterialTheme.typography.titleSmall)
+                        Spacer(Modifier.height(4.dp))
                         Text(method.editorialNote, style = MaterialTheme.typography.bodyMedium)
+                    }
+                }
+            }
+        }
+        item {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("איך זה ייראה", style = MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.height(8.dp))
+                    TzitzitVisual(method.composition, height = 260.dp)
+                }
+            }
+        }
+        val remarks = CompositionCoherence.review(method.composition)
+        if (remarks.isNotEmpty()) {
+            item { Text("שווה לשים לב", style = MaterialTheme.typography.titleMedium) }
+            items(remarks) { r ->
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Text(r.title, style = MaterialTheme.typography.titleSmall)
+                        Spacer(Modifier.height(4.dp))
+                        Text(r.body, style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -54,18 +80,32 @@ fun MethodDetailScreen(method: KnotMethod, onFinalize: (() -> Unit)? = null) {
         if (method.sources.isNotEmpty()) {
             item { Text("מקורות", style = MaterialTheme.typography.titleMedium) }
             items(method.sources) { source ->
-                Column {
-                    Text("${source.title} (${source.author})", style = MaterialTheme.typography.bodyMedium)
-                    source.excerpt?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
-                    source.note?.let { Text(it, style = MaterialTheme.typography.bodySmall) }
+                val uriHandler = LocalUriHandler.current
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(12.dp)) {
+                        Text("${source.title} (${source.author})", style = MaterialTheme.typography.bodyMedium)
+                        source.excerpt?.let {
+                            Spacer(Modifier.height(4.dp))
+                            Text("\"$it\"", style = MaterialTheme.typography.bodySmall)
+                        }
+                        source.note?.let {
+                            Spacer(Modifier.height(4.dp))
+                            Text(it, style = MaterialTheme.typography.labelSmall)
+                        }
+                        source.link?.let { url ->
+                            TextButton(onClick = { uriHandler.openUri(url) }) {
+                                Text("לפתוח בספריא")
+                            }
+                        }
+                    }
                 }
             }
         }
-        if (onFinalize != null) {
+        if (onUseInGuide != null) {
             item {
                 Spacer(Modifier.height(8.dp))
-                Button(onClick = onFinalize, modifier = Modifier.fillMaxWidth()) {
-                    Text("זו הבחירה שלי")
+                Button(onClick = onUseInGuide, modifier = Modifier.fillMaxWidth()) {
+                    Text("זו הבחירה שלי - איך קושרים את זה")
                 }
             }
         }

@@ -15,12 +15,16 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun HistoryScreen(consultations: List<SavedConsultation>, methods: List<KnotMethod>) {
+fun HistoryScreen(
+    consultations: List<SavedConsultation>,
+    methods: List<KnotMethod>,
+    onDelete: (String) -> Unit
+) {
     Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
         Text("ייעוצים קודמים", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         Text(
-            "שימושי כשאתם עוזרים לכמה חברים להחליט לאורך זמן, ורוצים להיזכר מה הומלץ למי.",
+            "כל ייעוץ נשמר בנפרד, כדי שאפשר יהיה להיזכר אחר כך מה הומלץ למי ומתי.",
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(16.dp))
@@ -36,7 +40,14 @@ fun HistoryScreen(consultations: List<SavedConsultation>, methods: List<KnotMeth
             items(consultations.sortedByDescending { it.createdAtEpochMillis }) { consultation ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(16.dp)) {
-                        Text(consultation.consultingFor, style = MaterialTheme.typography.titleMedium)
+                        Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                            Text(
+                                consultation.consultingFor,
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+                            TextButton(onClick = { onDelete(consultation.id) }) { Text("מחיקה") }
+                        }
                         Text(
                             dateFormat.format(Date(consultation.createdAtEpochMillis)),
                             style = MaterialTheme.typography.bodySmall

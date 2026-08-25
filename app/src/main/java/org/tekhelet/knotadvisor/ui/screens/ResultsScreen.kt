@@ -21,13 +21,13 @@ fun ResultsScreen(
         Text("השיטות המתאימות ביותר עבורך", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(4.dp))
         Text(
-            "הדירוג מבוסס על התשובות שלך. אין כאן פסק הלכה - רק כלי עזר לבחירה מתוך שיטות לגיטימיות.",
+            "הדירוג מבוסס על מה שאמרת לי שחשוב לך. זה לא פסק הלכה - כל השיטות כאן לגיטימיות, וזו רק דרך למיין ביניהן.",
             style = MaterialTheme.typography.bodySmall
         )
         Spacer(Modifier.height(16.dp))
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(viewModel.results) { scored ->
+            items(viewModel.results.take(viewModel.visibleResultCount)) { scored ->
                 ResultCard(
                     scored = scored,
                     onOpenDetail = { onOpenDetail(scored.method.id) },
