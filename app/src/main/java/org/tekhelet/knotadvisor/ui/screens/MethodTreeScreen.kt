@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -147,9 +146,13 @@ private fun <T> TreeLevel(
     }
 }
 
-/** עטיפה לגלישת שורות. FlowRow עדיין מסומן כניסיוני, ולכן ה-OptIn מרוכז כאן בלבד. */
+/**
+ * עטיפה לגלישת שורות. FlowRow עדיין מסומן כניסיוני, ולכן ה-OptIn מרוכז כאן בלבד -
+ * והחתימה מקבלת lambda רגילה ולא FlowRowScope, כדי לא לדלוף את הטיפוס הניסיוני
+ * הלאה לקוראים ולחייב גם אותם ב-OptIn.
+ */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowRowSimple(content: @Composable FlowRowScope.() -> Unit) {
+private fun FlowRowSimple(content: @Composable () -> Unit) {
     FlowRow { content() }
 }
