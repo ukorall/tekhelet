@@ -79,7 +79,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     // --- מתייעץ ---
-    fun setConsultingFor(name: String) {
+    fun updateConsultingFor(name: String) {
         consultingFor = name
         viewModelScope.launch { sessionStore.saveConsultingFor(name) }
     }

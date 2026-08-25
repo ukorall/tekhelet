@@ -108,7 +108,7 @@ fun AppNavHost() {
                     onContinueJourney = { navController.navigate(Routes.JOURNEY) },
                     onOpenHistory = { navController.navigate(Routes.HISTORY) },
                     onOpenFeedback = { navController.navigate(Routes.FEEDBACK) },
-                    onSetConsultingFor = viewModel::setConsultingFor
+                    onSetConsultingFor = viewModel::updateConsultingFor
                 )
             }
 
