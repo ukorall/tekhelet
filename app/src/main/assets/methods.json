@@ -190,7 +190,7 @@
         "windingColor": "ALTERNATING_CHULYOT",
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "GROUPS_3_3_3_4",
+        "knotScheme": "FIVE_GROUPS_CHINUCH",
         "note": "בתרשים: \"חינוך (ר' עמרם גאון + 5 קשרים)\". חלוקת 3,3,3,4 היא \"הדרך הא'\" אצל הרב רפמן.",
         "windsPerChulya": [
           3,
@@ -253,7 +253,7 @@
         "windingColor": "ALTERNATING_CHULYOT",
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "GROUPS_4_4_4_1",
+        "knotScheme": "FIVE_GROUPS_GRA",
         "note": "חלוקת 4,4,4,1 היא \"הדרך הב'\" אצל הרב רפמן, ע\"פ ביאור הגר\"א לזוהר - כנגד ד' אותיות הוי\"ה.",
         "windsPerChulya": [
           3,

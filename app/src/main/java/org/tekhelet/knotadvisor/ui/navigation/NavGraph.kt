@@ -103,6 +103,7 @@ fun AppNavHost() {
         ) {
             composable(Routes.HOME) {
                 TopicsHomeScreen(
+                    contentError = viewModel.contentError,
                     journey = viewModel.journey,
                     consultingFor = viewModel.consultingFor,
                     onSelectTopic = { navController.navigate(routeForTopic(it)) },

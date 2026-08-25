@@ -10,6 +10,14 @@ val ciVersionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toIntOrNull() ?:
 
 android {
     namespace = "org.tekhelet.knotadvisor"
+
+    // הבדיקות קוראות את קבצי ה-assets האמיתיים, כדי שהן יבדקו את התוכן שבאמת
+    // נשלח למכשיר ולא עותק נפרד שעלול להתיישן.
+    sourceSets {
+        getByName("test") {
+            resources.srcDir("src/main/assets")
+        }
+    }
     compileSdk = 34
 
     defaultConfig {
@@ -82,6 +90,9 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.6.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 }
 
 // מסנכרן תוכן שמנוהל בתיקיית content/ בשורש הריפו (מחוץ למודול app) לתוך assets, כדי

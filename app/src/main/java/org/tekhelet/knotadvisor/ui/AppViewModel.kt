@@ -31,6 +31,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     val allMethods: List<KnotMethod> by lazy { repository.loadMethods() }
     val allQuestions: List<Question> by lazy { repository.loadQuestions() }
+
+    /** לא null אם טעינת התוכן נכשלה - מוצג למשתמש במקום לקרוס בשקט. */
+    val contentError: String?
+        get() {
+            allMethods; allQuestions   // מאלץ טעינה כדי שהשגיאה תתמלא
+            return repository.loadError
+        }
     val primaryQuestions: List<Question> by lazy { allQuestions.filter { it.stage == QuestionStage.PRIMARY } }
 
     var answers by mutableStateOf<Map<String, Answer>>(emptyMap()); private set

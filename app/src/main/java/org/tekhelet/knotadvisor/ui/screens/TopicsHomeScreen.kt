@@ -19,6 +19,7 @@ import org.tekhelet.knotadvisor.ui.components.KnotDivider
  */
 @Composable
 fun TopicsHomeScreen(
+    contentError: String?,
     journey: JourneyState,
     consultingFor: String,
     onSelectTopic: (Topic) -> Unit,
@@ -53,6 +54,27 @@ fun TopicsHomeScreen(
                 "מעלה בפניך. בסוף אתה מחליט.",
             style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)
         )
+
+        contentError?.let { err ->
+            Spacer(Modifier.height(16.dp))
+            Card(
+                Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                )
+            ) {
+                Column(Modifier.padding(14.dp)) {
+                    Text("בעיה בטעינת התוכן", style = MaterialTheme.typography.titleSmall)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "חלק מהאפליקציה לא יעבוד. זה מה שנכשל:",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(err, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
 
         Spacer(Modifier.height(20.dp))
         ConsultingForField(consultingFor, onSetConsultingFor)

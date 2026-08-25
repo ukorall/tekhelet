@@ -1,6 +1,7 @@
 package org.tekhelet.knotadvisor.data
 
 import android.content.Context
+import android.util.Log
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.tekhelet.knotadvisor.model.KnotMethod
@@ -8,17 +9,19 @@ import org.tekhelet.knotadvisor.model.Question
 import java.io.IOException
 
 /**
- * טוען את תוכן הבסיס (שיטות קשירה ושאלות) מקבצי ה-assets המצורפים לאפליקציה.
+ * טוען את תוכן הבסיס (שיטות קשירה ושאלות) מקבצי ה-assets.
  *
- * הבחירה לשמור את התוכן כ-JSON בתוך assets, ולא ב-Room או שרת מרוחק, היא מכוונת:
- * בשלב הזה התוכן (שיטות, ניסוחי שאלות, ציוני צירים) משתנה בעריכה ידנית של המשתמש
- * (אוריאל) ולא על ידי האפליקציה עצמה - JSON קריא-אנושית הוא הכי נוח לעריכה כזו.
- * כשיתווספו תמונות/מקורות מלאים אפשר בקלות לפצל לכמה קבצים לפי שיטה, או לעבור
- * ל-Room אם יידרש חיפוש/סינון כבד יותר.
+ * התוכן נשמר כ-JSON בתוך assets ולא ב-Room או בשרת, כי זה תוכן שנערך ידנית
+ * ולא על ידי האפליקציה - JSON קריא-אנושית הוא הכי נוח לעריכה כזו.
  *
- * מעל זה: `texts.txt` (מגיע מ-content/texts.txt שבשורש הריפו, ראו content/README.md)
- * יכול "לדרוס" חלק מהטקסטים החופשיים (shortSummary/fullDescription/editorialNote)
- * בלי לגעת ב-methods.json - כדי לאפשר עריכת טקסט נוחה בלי לגעת ב-JSON/קוד.
+ * מעל זה: `texts.txt` (מגיע מ-content/texts.txt, ראו content/README.md) יכול
+ * "לדרוס" חלק מהטקסטים החופשיים בלי לגעת ב-methods.json.
+ *
+ * **עמידות לשגיאות.** קודם, כל טעות קטנה בקובץ ה-JSON - למשל ערך enum שלא
+ * קיים יותר בקוד - הפילה את כל האפליקציה בכל מסך שנגע בשיטות, בלי שום הסבר.
+ * זה בדיוק מה שקרה. עכשיו כישלון טעינה נתפס, נרשם ללוג, ומוחזר כרשימה ריקה
+ * יחד עם הודעת שגיאה קריאה שהממשק יכול להציג - כך שגם אם התוכן שבור,
+ * האפליקציה עדיין נפתחת ואפשר להבין למה.
  */
 class ContentRepository(private val context: Context) {
 
@@ -33,25 +36,45 @@ class ContentRepository(private val context: Context) {
     private var cachedMethods: List<KnotMethod>? = null
     private var cachedQuestions: List<Question>? = null
 
+    /** מתמלא אם טעינת התוכן נכשלה, כדי שאפשר יהיה להראות למה. */
+    var loadError: String? = null
+        private set
+
     fun loadMethods(): List<KnotMethod> {
         cachedMethods?.let { return it }
-        val text = context.assets.open("methods.json").bufferedReader().use { it.readText() }
-        val base = json.decodeFromString(MethodsFile.serializer(), text).methods
-        val overrides = loadTextOverrides()
-        val parsed = if (overrides.isEmpty()) base else base.map { applyTextOverrides(it, overrides) }
+        val parsed = try {
+            val text = context.assets.open("methods.json").bufferedReader().use { it.readText() }
+            val base = json.decodeFromString(MethodsFile.serializer(), text).methods
+            val overrides = loadTextOverrides()
+            if (overrides.isEmpty()) base else base.map { applyTextOverrides(it, overrides) }
+        } catch (e: Exception) {
+            recordError("methods.json", e)
+            emptyList()
+        }
         cachedMethods = parsed
         return parsed
     }
 
     fun loadQuestions(): List<Question> {
         cachedQuestions?.let { return it }
-        val text = context.assets.open("questions.json").bufferedReader().use { it.readText() }
-        val parsed = json.decodeFromString(QuestionsFile.serializer(), text).questions
+        val parsed = try {
+            val text = context.assets.open("questions.json").bufferedReader().use { it.readText() }
+            json.decodeFromString(QuestionsFile.serializer(), text).questions
+        } catch (e: Exception) {
+            recordError("questions.json", e)
+            emptyList()
+        }
         cachedQuestions = parsed
         return parsed
     }
 
     fun findMethod(id: String): KnotMethod? = loadMethods().find { it.id == id }
+
+    private fun recordError(file: String, e: Exception) {
+        val msg = "שגיאה בטעינת $file: ${e.message ?: e::class.simpleName}"
+        Log.e("ContentRepository", msg, e)
+        loadError = (loadError?.plus("\n") ?: "") + msg
+    }
 
     private fun applyTextOverrides(method: KnotMethod, overrides: Map<String, String>): KnotMethod =
         method.copy(
@@ -61,9 +84,8 @@ class ContentRepository(private val context: Context) {
         )
 
     /**
-     * מפרסר את texts.txt: כותרות בצורת "### <method-id>.<field>" מתחילות בלוק, וכל מה
-     * שאחריהן (עד הכותרת הבאה או סוף הקובץ) הוא הטקסט החופשי לאותו שדה. שדות נתמכים:
-     * shortSummary, fullDescription, editorialNote. הקובץ אופציונלי - חסר = בלי override.
+     * מפרסר את texts.txt: כותרות בצורת "### <method-id>.<field>" מתחילות בלוק,
+     * וכל מה שאחריהן הוא הטקסט. הקובץ אופציונלי - חסר = בלי override.
      */
     private fun loadTextOverrides(): Map<String, String> {
         val text = try {
@@ -93,7 +115,6 @@ class ContentRepository(private val context: Context) {
             }
         }
         flush()
-
         return overrides
     }
 }
