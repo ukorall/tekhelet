@@ -4,6 +4,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
 }
 
+// versionCode עולה אוטומטית לפי מספר ההרצה ב-CI (GITHUB_RUN_NUMBER), כך שכל בנייה
+// חדשה נחשבת "חדשה יותר" מהקודמת ואפשר לעדכן התקנה קיימת. בבנייה מקומית נשאר 1.
+val ciVersionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toIntOrNull() ?: 1
+
 android {
     namespace = "org.tekhelet.knotadvisor"
     compileSdk = 34
@@ -12,13 +16,30 @@ android {
         applicationId = "org.tekhelet.knotadvisor"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = ciVersionCode
+        versionName = "0.2.0.$ciVersionCode"
+    }
+
+    // מפתח חתימה קבוע שנשמר בריפו. בלי זה, כל הרצת CI מייצרת debug.keystore חדש,
+    // החתימה משתנה בין בנייה לבנייה, ואנדרואיד מסרב לעדכן התקנה קיימת ודורש
+    // הסרה והתקנה מחדש. עם מפתח קבוע - ההתקנה החדשה פשוט דורסת את הישנה.
+    // ראו DESIGN.md, "חתימת ה-APK ועדכון במקום".
+    signingConfigs {
+        create("stable") {
+            storeFile = rootProject.file("keystore/tekhelet-dev.jks")
+            storePassword = "tekhelet"
+            keyAlias = "tekhelet-dev"
+            keyPassword = "tekhelet"
+        }
     }
 
     buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("stable")
+        }
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("stable")
         }
     }
 

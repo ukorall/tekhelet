@@ -50,9 +50,9 @@ data class KnotMethod(
     // תגיות זיקה: קהילה/חסידות, אך גם פוסק מועדף, נטייה קבלית, דמיון לקשירה בלבן וכו' -
     // כל מה שנבדק מול שאלת ה"הטיה" (q_affinity_bias). למשל ["chabad"], ["general"], ["posek-rambam"]
     val affinityTags: List<String> = emptyList(),
-    // קישור טיוטתי לאזור "כמה" העתידי: איזו מ-3 שיטות מספר החוטים (1/8, 2/8, 4/8) השיטה
-    // הזו הולכת בעקבותיה, אם ידוע. null = לא ידוע/לא רלוונטי. ראו DESIGN.md סעיף 2.
-    val threadCountSchool: String? = null,
+    // ההרכב ההלכתי של השיטה - חמשת הדיונים הנפרדים. ראו Composition.kt להסבר מלא.
+    // זו השכבה העובדתית (ממה השיטה מורכבת), בשונה מ-axisScores שהיא שכבת ההעדפות.
+    val composition: KnotComposition = KnotComposition(),
     val axisScores: Map<Axis, Int>,   // 0-10 לכל ציר, ראו Axis
     val variants: List<MethodVariant> = emptyList(),
     val sources: List<SourceRef> = emptyList(),

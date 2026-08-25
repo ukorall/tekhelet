@@ -21,6 +21,7 @@ import coil.compose.AsyncImage
 import org.tekhelet.knotadvisor.R
 import org.tekhelet.knotadvisor.data.AssetImages
 import org.tekhelet.knotadvisor.model.KnotMethod
+import org.tekhelet.knotadvisor.ui.components.CompositionCard
 
 @Composable
 fun MethodDetailScreen(method: KnotMethod, onFinalize: (() -> Unit)? = null) {
@@ -33,6 +34,7 @@ fun MethodDetailScreen(method: KnotMethod, onFinalize: (() -> Unit)? = null) {
         item {
             Text(method.fullDescription, style = MaterialTheme.typography.bodyLarge)
         }
+        item { CompositionCard(method.composition) }
         if (method.editorialNote != null) {
             item {
                 Card(modifier = Modifier.fillMaxWidth()) {
