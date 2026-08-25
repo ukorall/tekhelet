@@ -1,30 +1,36 @@
 package org.tekhelet.knotadvisor.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.*
+import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 
 /**
- * המימוש האינטראקטיבי של התרשים.
+ * מפת השיטות - הגרסה הניתנת לניווט של התרשים.
  *
- * למה כך ולא כתמונה שאפשר להגדיל: התרשים המקורי הוא עץ החלטות, והערך שלו הוא
- * בלראות **איפה אתה עומד** בתוכו - לא בלראות את כולו בבת אחת. תרשים ענק על מסך
- * טלפון הוא בלתי קריא ממילא. לכן כאן יש שני מצבים משלימים:
+ * המבנה מחקה את התרשים המקורי: שאלה, מתחתיה הענפים שיוצאים ממנה, וקווים
+ * שמחברים ביניהם. יורדים שלב-שלב, ובכל שלב רואים כמה שיטות עדיין "חיות"
+ * בענף הזה, ואת הגדילים עצמם מצוירים.
  *
- *  - **מבט על**: כל חמשת הדיונים זה מתחת לזה, עם מספר השיטות שנשארו בכל שלב.
- *  - **ניווט**: בוחרים ערך בדיון, והרשימה למטה מצטמצמת בזמן אמת.
- *
- * חשוב: הבחירה כאן **מסננת תצוגה בלבד**, היא לא פוסלת. אף שיטת קשירה לא נהיית
- * לא רלוונטית בגלל בחירת מספר חוטים - ולכן תמיד מוצג גם מה נשאר בחוץ ולמה.
+ * הבדל מכוון מבונה ההרכב: כאן **לא בונים** שיטה, אלא **מנווטים** בין שיטות
+ * קיימות. ולכן הבחירה מסננת תצוגה בלבד - שום שיטה לא נפסלת, ומה שיצא מהענף
+ * הנוכחי עדיין מוצג למטה.
  */
 @Composable
 fun MethodTreeScreen(
@@ -34,125 +40,254 @@ fun MethodTreeScreen(
     var threadCount by remember { mutableStateOf<ThreadCount?>(null) }
     var windingColor by remember { mutableStateOf<WindingColor?>(null) }
     var chulyotCount by remember { mutableStateOf<ChulyotCount?>(null) }
-    var chulyaForm by remember { mutableStateOf<ChulyaForm?>(null) }
     var knotScheme by remember { mutableStateOf<KnotScheme?>(null) }
 
-    fun matches(m: KnotMethod): Boolean {
+    fun survives(m: KnotMethod, upTo: Int): Boolean {
         val c = m.composition
-        if (threadCount != null && c.threadCount != threadCount) return false
-        if (windingColor != null && c.windingColor != windingColor) return false
-        if (chulyotCount != null && c.chulyotCount != chulyotCount) return false
-        if (chulyaForm != null && c.chulyaForm != chulyaForm) return false
-        if (knotScheme != null && c.knotScheme != knotScheme) return false
+        if (upTo >= 1 && threadCount != null && c.threadCount != threadCount) return false
+        if (upTo >= 2 && windingColor != null && c.windingColor != windingColor) return false
+        if (upTo >= 3 && chulyotCount != null && c.chulyotCount != chulyotCount) return false
+        if (upTo >= 4 && knotScheme != null && c.knotScheme != knotScheme) return false
         return true
     }
 
-    val matching = methods.filter { matches(it) }
-    val excluded = methods.filterNot { matches(it) }
-    val anyFilter = listOfNotNull(threadCount, windingColor, chulyotCount, chulyaForm, knotScheme).isNotEmpty()
+    val matching = methods.filter { survives(it, 4) }
+    val excluded = methods.filterNot { survives(it, 4) }
+    val anyFilter = listOfNotNull(threadCount, windingColor, chulyotCount, knotScheme).isNotEmpty()
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
+        Spacer(Modifier.height(12.dp))
         Text("מפת השיטות", style = MaterialTheme.typography.headlineSmall)
-        Spacer(Modifier.height(6.dp))
+        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
         Text(
-            "זה התרשים שלי, רק שאפשר לנווט בו. בוחרים ערך בכל דיון והרשימה למטה " +
-                "מצטמצמת. שים לב שזה סינון תצוגה בלבד - שום שיטה לא נפסלת באמת.",
+            "זה התרשים שלי, רק שאפשר לרדת בו שלב-שלב. בכל צומת בוחרים ענף, " +
+                "והמפה מצטמצמת. שום שיטה לא נפסלת - מה שיוצא מהענף פשוט יורד למטה.",
             style = MaterialTheme.typography.bodyMedium
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(12.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("${matching.size} מתוך ${methods.size} שיטות", style = MaterialTheme.typography.titleSmall)
+            Surface(
+                color = MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.small
+            ) {
+                Text(
+                    "${matching.size} מתוך ${methods.size} שיטות",
+                    style = MaterialTheme.typography.labelLarge,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
             Spacer(Modifier.weight(1f))
             AnimatedVisibility(anyFilter) {
                 TextButton(onClick = {
-                    threadCount = null; windingColor = null; chulyotCount = null
-                    chulyaForm = null; knotScheme = null
-                }) { Text("נקה הכול") }
+                    threadCount = null; windingColor = null; chulyotCount = null; knotScheme = null
+                }) { Text("לנקות הכול") }
             }
         }
 
-        Spacer(Modifier.height(10.dp))
-        TreeLevel("א. מספר חוטי התכלת", ThreadCount.entries.map { it to it.label }, threadCount,
-            counter = { v -> methods.count { it.composition.threadCount == v } }) { threadCount = it }
-        TreeLevel("ב. צבע הכריכות", WindingColor.entries.map { it to it.label }, windingColor,
-            counter = { v -> methods.count { it.composition.windingColor == v } }) { windingColor = it }
-        TreeLevel("ג. מספר החוליות", ChulyotCount.entries.map { it to it.label }, chulyotCount,
-            counter = { v -> methods.count { it.composition.chulyotCount == v } }) { chulyotCount = it }
-        TreeLevel("ד. צורת החוליה", ChulyaForm.entries.map { it to it.label }, chulyaForm,
-            counter = { v -> methods.count { it.composition.chulyaForm == v } }) { chulyaForm = it }
-        TreeLevel("ה. שילוב הקשרים", KnotScheme.entries.map { it to it.label }, knotScheme,
-            counter = { v -> methods.count { it.composition.knotScheme == v } }) { knotScheme = it }
+        Spacer(Modifier.height(6.dp))
+        RootNode()
 
-        Spacer(Modifier.height(18.dp))
-        Text("מתאימות", style = MaterialTheme.typography.titleMedium)
+        TreeNode(
+            question = "כמה חוטי תכלת?",
+            branches = ThreadCount.entries.map { v ->
+                Branch(v, v.label, methods.count { it.composition.threadCount == v && survives(it, 0) })
+            },
+            selected = threadCount,
+            onSelect = { threadCount = it }
+        )
+        TreeNode(
+            question = "איך נראות הכריכות?",
+            branches = WindingColor.entries.map { v ->
+                Branch(v, v.label, methods.count { it.composition.windingColor == v && survives(it, 1) })
+            },
+            selected = windingColor,
+            onSelect = { windingColor = it }
+        )
+        TreeNode(
+            question = "כמה חוליות?",
+            branches = ChulyotCount.entries.map { v ->
+                Branch(v, v.label, methods.count { it.composition.chulyotCount == v && survives(it, 2) })
+            },
+            selected = chulyotCount,
+            onSelect = { chulyotCount = it }
+        )
+        TreeNode(
+            question = "ואיפה הקשרים?",
+            branches = KnotScheme.entries.map { v ->
+                Branch(v, v.label, methods.count { it.composition.knotScheme == v && survives(it, 3) })
+            },
+            selected = knotScheme,
+            onSelect = { knotScheme = it },
+            isLast = true
+        )
+
+        Spacer(Modifier.height(14.dp))
+        Text("השיטות שנשארו", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(8.dp))
+
         if (matching.isEmpty()) {
-            Text(
-                "אין שיטה מוכרת שעונה בדיוק על הצירוף הזה - וזה בסדר גמור. " +
-                    "זה בדיוק המצב שבו כדאי לגשת לבונה ההרכב האישי.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        matching.forEach { m ->
-            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { onOpenMethod(m.id) }) {
-                Column(Modifier.padding(14.dp)) {
-                    Text(m.name, style = MaterialTheme.typography.titleSmall)
-                    Text(m.shortSummary, style = MaterialTheme.typography.bodySmall)
+            Card(Modifier.fillMaxWidth()) {
+                Text(
+                    "אין שיטה מוכרת שעונה בדיוק על הצירוף הזה - וזה בסדר גמור. " +
+                        "בדיוק בשביל זה יש את בונה ההרכב האישי.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(14.dp)
+                )
+            }
+        } else {
+            Row(Modifier.horizontalScroll(rememberScrollState())) {
+                matching.forEach { m ->
+                    MethodLeaf(m) { onOpenMethod(m.id) }
+                    Spacer(Modifier.width(10.dp))
                 }
             }
         }
 
         AnimatedVisibility(anyFilter && excluded.isNotEmpty()) {
             Column {
-                Spacer(Modifier.height(14.dp))
-                Text("לא תואמות לסינון הנוכחי", style = MaterialTheme.typography.titleSmall)
+                Spacer(Modifier.height(16.dp))
+                Text("יצאו מהענף הזה", style = MaterialTheme.typography.titleSmall)
                 Text(
-                    "מוצגות כאן בכוונה: הן לא פסולות, הן פשוט מכריעות אחרת.",
+                    "מוצגות כאן בכוונה - הן לא פסולות, הן פשוט מכריעות אחרת.",
                     style = MaterialTheme.typography.labelSmall
                 )
-                Spacer(Modifier.height(8.dp))
+                Spacer(Modifier.height(6.dp))
                 excluded.forEach { m ->
                     TextButton(onClick = { onOpenMethod(m.id) }) { Text("• ${m.name}") }
                 }
             }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(28.dp))
     }
 }
 
+private data class Branch<T>(val value: T, val label: String, val count: Int)
+
 @Composable
-private fun <T> TreeLevel(
-    title: String,
-    options: List<Pair<T, String>>,
-    selected: T?,
-    counter: (T) -> Int,
-    onSelect: (T?) -> Unit
-) {
-    Column(Modifier.padding(bottom = 12.dp)) {
-        Text(title, style = MaterialTheme.typography.labelLarge)
-        Spacer(Modifier.height(6.dp))
-        FlowRowSimple {
-            options.forEach { (value, label) ->
-                val n = counter(value)
-                FilterChip(
-                    selected = value == selected,
-                    onClick = { onSelect(if (value == selected) null else value) },
-                    label = { Text("$label ($n)", style = MaterialTheme.typography.labelSmall) },
-                    modifier = Modifier.padding(end = 6.dp, bottom = 6.dp)
-                )
-            }
+private fun RootNode() {
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Surface(
+            color = MaterialTheme.colorScheme.primary,
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Text(
+                "קשירת ציצית בתכלת",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
         }
     }
 }
 
-/**
- * עטיפה לגלישת שורות. FlowRow עדיין מסומן כניסיוני, ולכן ה-OptIn מרוכז כאן בלבד -
- * והחתימה מקבלת lambda רגילה ולא FlowRowScope, כדי לא לדלוף את הטיפוס הניסיוני
- * הלאה לקוראים ולחייב גם אותם ב-OptIn.
- */
-@OptIn(ExperimentalLayoutApi::class)
+/** צומת אחד בעץ: שאלה, קו יורד, ושורת ענפים. */
 @Composable
-private fun FlowRowSimple(content: @Composable () -> Unit) {
-    FlowRow { content() }
+private fun <T> TreeNode(
+    question: String,
+    branches: List<Branch<T>>,
+    selected: T?,
+    onSelect: (T?) -> Unit,
+    isLast: Boolean = false
+) {
+    Connector()
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            question,
+            style = MaterialTheme.typography.labelLarge,
+            textAlign = TextAlign.Center
+        )
+    }
+    Spacer(Modifier.height(6.dp))
+    Row(Modifier.fillMaxWidth().horizontalScroll(rememberScrollState())) {
+        branches.forEach { b ->
+            val isSelected = b.value == selected
+            val dimmed = b.count == 0
+            Surface(
+                color = when {
+                    isSelected -> MaterialTheme.colorScheme.primaryContainer
+                    dimmed -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                    else -> MaterialTheme.colorScheme.surface
+                },
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier
+                    .width(150.dp)
+                    .padding(end = 8.dp)
+                    .then(
+                        if (isSelected) Modifier.border(
+                            2.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium
+                        ) else Modifier.border(
+                            1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
+                            MaterialTheme.shapes.medium
+                        )
+                    ),
+                onClick = { onSelect(if (isSelected) null else b.value) }
+            ) {
+                Column(Modifier.padding(10.dp)) {
+                    Text(
+                        b.label,
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 3
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        if (b.count == 0) "אין שיטה כזאת" else "${b.count} שיטות",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
+        }
+    }
+    if (!isLast) Spacer(Modifier.height(2.dp))
+}
+
+/** קו אנכי שמחבר בין צמתים, כמו בתרשים המקורי. */
+@Composable
+private fun Connector() {
+    val color = MaterialTheme.colorScheme.outline
+    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+        Canvas(Modifier.height(18.dp).width(2.dp)) {
+            drawLine(
+                color = color,
+                start = Offset(size.width / 2f, 0f),
+                end = Offset(size.width / 2f, size.height),
+                strokeWidth = 2f,
+                cap = StrokeCap.Round
+            )
+        }
+    }
+}
+
+/** "עלה" בעץ - שיטה, עם הגדיל שלה מצויר, כמו התצלומים בתחתית התרשים. */
+@Composable
+private fun MethodLeaf(method: KnotMethod, onClick: () -> Unit) {
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .width(128.dp)
+            .border(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.6f), MaterialTheme.shapes.medium),
+        onClick = onClick
+    ) {
+        Column(
+            Modifier.padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                method.name,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center,
+                maxLines = 2
+            )
+            Spacer(Modifier.height(6.dp))
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
+            ) {
+                TzitzitVisual(method.composition, height = 190.dp, showLegend = false)
+            }
+        }
+    }
 }

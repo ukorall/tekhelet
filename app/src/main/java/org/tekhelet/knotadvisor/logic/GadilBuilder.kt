@@ -2,23 +2,47 @@ package org.tekhelet.knotadvisor.logic
 
 import org.tekhelet.knotadvisor.model.*
 
-/** יחידה אחת בגדיל - כריכה, קשר, או רווח בין חוליות. */
+/**
+ * יחידה אחת בגדיל. הצורות כאן מתורגמות ישירות לציור ב-TzitzitVisual, לפי המפרט
+ * שאוריאל נתן:
+ *  - קשר כפול מצויר כ-X כפול.
+ *  - חוליה תימנית = חצי ליפוף ימני, שני ליפופים באלכסון (משמאל למעלה לימין
+ *    למטה), וחצי ליפוף שמאלי. סה"כ מבנה אחד באורך שלושה ליפופים.
+ *  - חוליה תימנית משולבת (רק ראשונה/אחרונה) = חלק לבן כליפוף "שבור", וחלק
+ *    התכלת כחצי ימני + אלכסון + חצי שמאלי.
+ *  - חוליה תימנית הפוכה = קו אלכסוני על גבי הליפופים. יכולה להיות באורך 1, 2
+ *    או 3 ליפופים, כי בשיטה החסידית קשר כפול חותך אותה באמצע.
+ *  - ברמב"ם יש בין כל שתי חוליות רווח באורך חוליה, שדרכו רואים את החוטים
+ *    המאונכים שסביבם מלפפים.
+ */
 sealed interface GadilSegment {
+    /** ליפוף פשוט. */
     data class Wind(val tekhelet: Boolean, val chulyaIndex: Int) : GadilSegment
+
+    /** חוליה תימנית שלמה - נתפסת כיחידה אחת באורך שלושה ליפופים. */
+    data class YemeniteChulya(
+        val tekhelet: Boolean,
+        val chulyaIndex: Int,
+        /** ראשונה/אחרונה יכולה להיות משולבת: חלק לבן "שבור" + חלק תכלת. */
+        val mixedWithWhite: Boolean = false
+    ) : GadilSegment
+
+    /** חוליה תימנית הפוכה - קו אלכסוני על הליפופים. אורך 1-3 ליפופים. */
+    data class InvertedYemenite(
+        val tekhelet: Boolean,
+        val chulyaIndex: Int,
+        val windCount: Int
+    ) : GadilSegment
+
     data class Knot(val label: String) : GadilSegment
-    data object Gap : GadilSegment
+
+    /** רווח באורך חוליה, שדרכו רואים את החוטים המאונכים (שיטת הרמב"ם). */
+    data object ChulyaGap : GadilSegment
+
+    /** רווח קטן בלבד, להיכר חוליות. */
+    data object SmallGap : GadilSegment
 }
 
-/**
- * בונה את רצף הגדיל מתוך ההרכב.
- *
- * זה הלב של שתי היכולות שביקשת: הוא מזין גם את הציור (TzitzitVisual) וגם את
- * הוראות הקשירה המילוליות (TyingInstructions) - כך ששניהם תמיד מספרים בדיוק
- * אותו סיפור, ואי אפשר שהם ייפרדו זה מזה.
- *
- * הכלל היחיד שנאכף כאן בלי תנאי: הכריכה הראשונה והאחרונה בלבן. זו גמרא מפורשת,
- * והרבה אנשים טועים בזה - ראו CompositionCoherence.alwaysRemember().
- */
 object GadilBuilder {
 
     fun build(c: KnotComposition): List<GadilSegment> {
@@ -27,29 +51,88 @@ object GadilBuilder {
         val windsPer = windsPerChulya(c, chulyot)
         val knotAfter = knotPositions(c, chulyot)
 
-        out += GadilSegment.Knot("קשר כפול ראשון")
+        if (c.knotScheme != KnotScheme.CHULYA_IS_KNOT) {
+            out += GadilSegment.Knot("קשר כפול ראשון")
+        }
 
         for (i in 0 until chulyot) {
             val n = windsPer.getOrElse(i) { 3 }
-            for (w in 0 until n) {
-                val isVeryFirst = (i == 0 && w == 0)
-                val isVeryLast = (i == chulyot - 1 && w == n - 1)
-                val tekhelet = when {
-                    isVeryFirst || isVeryLast -> false      // תמיד לבן - דין הגמרא
-                    else -> windIsTekhelet(c, i, w)
-                }
-                out += GadilSegment.Wind(tekhelet, i)
-            }
-            if (i in knotAfter && i != chulyot - 1) {
-                out += GadilSegment.Knot("קשר כפול")
-            } else if (i != chulyot - 1) {
-                out += GadilSegment.Gap
+            val isFirst = i == 0
+            val isLast = i == chulyot - 1
+            out += renderChulya(c, i, n, isFirst, isLast)
+
+            if (!isLast) {
+                if (i in knotAfter) out += GadilSegment.Knot("קשר כפול")
+                else if (c.chulyaForm == ChulyaForm.YEMENITE_SELF_HOLDING ||
+                    c.knotScheme == KnotScheme.CHULYA_IS_KNOT
+                ) out += GadilSegment.ChulyaGap
+                else out += GadilSegment.SmallGap
             }
         }
 
-        out += GadilSegment.Knot("קשר כפול אחרון")
+        if (c.knotScheme != KnotScheme.CHULYA_IS_KNOT &&
+            c.knotScheme != KnotScheme.DOUBLE_AT_START
+        ) {
+            out += GadilSegment.Knot("קשר כפול אחרון")
+        }
         return out
     }
+
+    /** בונה חוליה אחת לפי צורת החוליה שנבחרה. */
+    private fun renderChulya(
+        c: KnotComposition,
+        index: Int,
+        winds: Int,
+        isFirst: Boolean,
+        isLast: Boolean
+    ): List<GadilSegment> {
+        val tekhelet = chulyaIsTekhelet(c, index)
+        // הכריכה הראשונה והאחרונה תמיד בלבן - דין גמרא, ראו CompositionCoherence
+        val edgeWhite = isFirst || isLast
+
+        return when (c.chulyaForm) {
+            ChulyaForm.YEMENITE_SELF_HOLDING -> listOf(
+                GadilSegment.YemeniteChulya(
+                    tekhelet = tekhelet,
+                    chulyaIndex = index,
+                    mixedWithWhite = edgeWhite && tekhelet
+                )
+            )
+            ChulyaForm.YEMENITE_INVERTED -> listOf(
+                GadilSegment.InvertedYemenite(
+                    tekhelet = tekhelet && !(edgeWhite && winds <= 1),
+                    chulyaIndex = index,
+                    windCount = winds.coerceIn(1, 3)
+                )
+            )
+            else -> (0 until winds).map { w ->
+                val veryFirst = isFirst && w == 0
+                val veryLast = isLast && w == winds - 1
+                GadilSegment.Wind(
+                    tekhelet = if (veryFirst || veryLast) false else windIsTekhelet(c, index, w),
+                    chulyaIndex = index
+                )
+            }
+        }
+    }
+
+    private fun chulyaIsTekhelet(c: KnotComposition, index: Int): Boolean =
+        when (c.windingColor) {
+            WindingColor.MOSTLY_TEKHELET_SINGLE_WIND -> true
+            WindingColor.MOSTLY_TEKHELET_FULL_CHULYA -> index != 0
+            WindingColor.ALTERNATING_CHULYOT -> index % 2 == 1
+            WindingColor.ALTERNATING_WINDS -> true
+            null -> true
+        }
+
+    private fun windIsTekhelet(c: KnotComposition, chulyaIndex: Int, windIndex: Int): Boolean =
+        when (c.windingColor) {
+            WindingColor.MOSTLY_TEKHELET_SINGLE_WIND -> true
+            WindingColor.MOSTLY_TEKHELET_FULL_CHULYA -> chulyaIndex != 0
+            WindingColor.ALTERNATING_CHULYOT -> chulyaIndex % 2 == 1
+            WindingColor.ALTERNATING_WINDS -> windIndex % 2 == 1
+            null -> true
+        }
 
     private fun chulyotCount(c: KnotComposition): Int = when (c.chulyotCount) {
         ChulyotCount.SEVEN -> 7
@@ -63,30 +146,25 @@ object GadilBuilder {
         if (c.windsPerChulya.isNotEmpty()) {
             val known = c.windsPerChulya.filter { it > 0 }
             val fallback = if (known.isEmpty()) 3 else known.average().toInt().coerceAtLeast(3)
-            return (0 until chulyot).map { c.windsPerChulya.getOrElse(it) { fallback }.let { v -> if (v > 0) v else fallback } }
+            return (0 until chulyot).map {
+                val v = c.windsPerChulya.getOrElse(it) { fallback }
+                if (v > 0) v else fallback
+            }
         }
-        // ארבע "חוליות" זה בעצם מנהג הלבן - קבוצות כריכות, לא חוליות של שלוש
+        // ארבע "חוליות" זה מנהג הלבן - קבוצות כריכות, לא חוליות של שלוש
         if (c.chulyotCount == ChulyotCount.FOUR) return listOf(7, 8, 11, 13)
         return List(chulyot) { 3 }
     }
 
-    private fun windIsTekhelet(c: KnotComposition, chulyaIndex: Int, windIndex: Int): Boolean =
-        when (c.windingColor) {
-            WindingColor.MOSTLY_TEKHELET_SINGLE_WIND -> true
-            WindingColor.MOSTLY_TEKHELET_FULL_CHULYA -> chulyaIndex != 0
-            WindingColor.ALTERNATING_CHULYOT -> chulyaIndex % 2 == 1
-            WindingColor.ALTERNATING_WINDS -> windIndex % 2 == 1
-            null -> true
-        }
-
     /** אחרי אילו חוליות (אינדקס) יש קשר כפול. */
     private fun knotPositions(c: KnotComposition, chulyot: Int): Set<Int> = when (c.knotScheme) {
-        KnotScheme.NONE -> emptySet()
-        KnotScheme.KNOT_EVERY_CHULYA -> (0 until chulyot).toSet()
-        KnotScheme.PAIRS_2_2_2_1 -> cumulative(listOf(2, 2, 2, 1))
-        KnotScheme.GROUPS_3_3_3_4 -> cumulative(listOf(3, 3, 3, 4))
-        KnotScheme.GROUPS_4_4_4_1 -> cumulative(listOf(4, 4, 4, 1))
-        KnotScheme.WINDS_7_8_11_13 -> cumulative(listOf(1, 1, 1, 1))
+        KnotScheme.CHULYA_IS_KNOT, KnotScheme.DOUBLE_AT_START,
+        KnotScheme.DOUBLE_AT_START_AND_END -> emptySet()
+        KnotScheme.DOUBLE_EVERY_CHULYA -> (0 until chulyot).toSet()
+        KnotScheme.FIVE_GROUPS_TOSAFOT -> cumulative(listOf(2, 2, 2, 1))
+        KnotScheme.FIVE_GROUPS_CHINUCH -> cumulative(listOf(3, 3, 3, 4))
+        KnotScheme.FIVE_GROUPS_GRA -> cumulative(listOf(4, 4, 4, 1))
+        KnotScheme.FIVE_WINDS_7_8_11_13 -> cumulative(listOf(3, 3, 3, 3))
         null -> emptySet()
     }
 
@@ -97,13 +175,28 @@ object GadilBuilder {
         return out
     }
 
-    // --- סטטיסטיקה לתצוגה ---
     fun summary(c: KnotComposition): Summary {
         val segs = build(c)
+        var total = 0
+        var tekhelet = 0
+        segs.forEach { s ->
+            when (s) {
+                is GadilSegment.Wind -> { total++; if (s.tekhelet) tekhelet++ }
+                is GadilSegment.YemeniteChulya -> {
+                    total += 3
+                    if (s.tekhelet) tekhelet += if (s.mixedWithWhite) 2 else 3
+                }
+                is GadilSegment.InvertedYemenite -> {
+                    total += s.windCount
+                    if (s.tekhelet) tekhelet += s.windCount
+                }
+                else -> Unit
+            }
+        }
         return Summary(
-            totalWinds = segs.count { it is GadilSegment.Wind },
-            tekheletWinds = segs.count { it is GadilSegment.Wind && it.tekhelet },
-            whiteWinds = segs.count { it is GadilSegment.Wind && !it.tekhelet },
+            totalWinds = total,
+            tekheletWinds = tekhelet,
+            whiteWinds = total - tekhelet,
             doubleKnots = segs.count { it is GadilSegment.Knot },
             chulyot = chulyotCount(c)
         )

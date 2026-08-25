@@ -12,13 +12,13 @@
         "posek-rambam"
       ],
       "axisScores": {
-        "AFFORDABILITY": 6,
-        "BEAUTY": 6,
-        "RISHONIM_BASIS": 9,
+        "AFFORDABILITY": 10,
+        "BEAUTY": 7,
+        "RISHONIM_BASIS": 8,
         "GENERAL_SOURCE_BASIS": 7,
         "COMMONNESS": 8,
-        "UNIQUENESS": 3,
-        "CONSENSUS_COVERAGE": 5,
+        "UNIQUENESS": 2,
+        "CONSENSUS_COVERAGE": 3,
         "NAMED_ATTRIBUTION": 10,
         "EXPLAINABILITY": 8
       },
@@ -61,8 +61,23 @@
         "windingColor": "MOSTLY_TEKHELET_SINGLE_WIND",
         "chulyotCount": "SEVEN_OR_THIRTEEN",
         "chulyaForm": "YEMENITE_SELF_HOLDING",
-        "knotScheme": "NONE",
-        "note": "בתרשים מופיעות שתי גרסאות מצולמות: \"רמב\"ם 7 חוליות קשור\" ו\"רמב\"ם 13 חוליות (ללא קשר ביטחון)\". יש גם נוהגים להוסיף 5 קשרים ע\"פ הגר\"א - ראו וריאציות."
+        "knotScheme": "CHULYA_IS_KNOT",
+        "note": "הרמב\"ם הציע גם 7 וגם 13 חוליות, על פי הגמרא \"לא יפחות משבע ולא יוסיף על שלוש עשרה\". החוליה עצמה נחשבת הקשר, אבל ראוי להחמיר ולהוסיף לפחות קשר כפול אחד בהתחלה.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       }
     },
     {
@@ -78,11 +93,11 @@
       "axisScores": {
         "AFFORDABILITY": 6,
         "BEAUTY": 9,
-        "RISHONIM_BASIS": 9,
+        "RISHONIM_BASIS": 7,
         "GENERAL_SOURCE_BASIS": 9,
-        "COMMONNESS": 6,
+        "COMMONNESS": 5,
         "UNIQUENESS": 5,
-        "CONSENSUS_COVERAGE": 7,
+        "CONSENSUS_COVERAGE": 4,
         "NAMED_ATTRIBUTION": 9,
         "EXPLAINABILITY": 8
       },
@@ -122,14 +137,14 @@
         "windingColor": "ALTERNATING_WINDS",
         "chulyotCount": "FOUR",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "KNOT_EVERY_CHULYA",
+        "knotScheme": "DOUBLE_EVERY_CHULYA",
         "windsPerChulya": [
           7,
-          0,
-          7,
-          7
+          9,
+          11,
+          13
         ],
-        "note": "החוליה אצל הראב\"ד היא ליפופים של לבן ותכלת לסירוגין, ומתחילה בלבן. בחוליה השנייה הוא כותב שאין הקפדה על הכמות, וזה לא לגמרי ברור - לפי רוב המפרשים זה עדיין צריך להישאר בתחום 7-13. בפועל השיטה מתפצלת לשתי אופציות של מספר ליפופים: 7,?,7,7 שזו הגרסה שהוא עצמו מביא, או 7,9,11,13 שנפוצה יותר כי היא כשיטת השו\"ע בלבן ולכן שמרנית ומקובלת יותר."
+        "note": "ליפופים פשוטים, וקשר כפול על כל חוליה בנוסף לאחד בהתחלה. במספר הליפופים יש שתי אפשרויות: 7,?,7,7 כפי שהראב\"ד עצמו מביא (בשנייה הוא כותב שאין הקפדה), או 7,9,11,13 שנפוץ יותר כי הוא תואם את השו\"ע בלבן. במהות, כל מספר אי-זוגי בין 7 ל-13 קביל."
       }
     },
     {
@@ -144,14 +159,14 @@
         "white-resemblance"
       ],
       "axisScores": {
-        "AFFORDABILITY": 7,
-        "BEAUTY": 6,
-        "RISHONIM_BASIS": 4,
-        "GENERAL_SOURCE_BASIS": 5,
+        "AFFORDABILITY": 6,
+        "BEAUTY": 7,
+        "RISHONIM_BASIS": 8,
+        "GENERAL_SOURCE_BASIS": 8,
         "COMMONNESS": 9,
         "UNIQUENESS": 2,
         "CONSENSUS_COVERAGE": 5,
-        "NAMED_ATTRIBUTION": 4,
+        "NAMED_ATTRIBUTION": 8,
         "EXPLAINABILITY": 4
       },
       "variants": [],
@@ -176,7 +191,22 @@
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
         "knotScheme": "GROUPS_3_3_3_4",
-        "note": "בתרשים: \"חינוך (ר' עמרם גאון + 5 קשרים)\". חלוקת 3,3,3,4 היא \"הדרך הא'\" אצל הרב רפמן."
+        "note": "בתרשים: \"חינוך (ר' עמרם גאון + 5 קשרים)\". חלוקת 3,3,3,4 היא \"הדרך הא'\" אצל הרב רפמן.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       }
     },
     {
@@ -193,15 +223,15 @@
         "white-resemblance"
       ],
       "axisScores": {
-        "AFFORDABILITY": 7,
-        "BEAUTY": 6,
+        "AFFORDABILITY": 6,
+        "BEAUTY": 7,
         "RISHONIM_BASIS": 4,
-        "GENERAL_SOURCE_BASIS": 6,
+        "GENERAL_SOURCE_BASIS": 8,
         "COMMONNESS": 9,
         "UNIQUENESS": 3,
         "CONSENSUS_COVERAGE": 5,
         "NAMED_ATTRIBUTION": 7,
-        "EXPLAINABILITY": 5
+        "EXPLAINABILITY": 4
       },
       "variants": [],
       "sources": [
@@ -224,7 +254,22 @@
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
         "knotScheme": "GROUPS_4_4_4_1",
-        "note": "חלוקת 4,4,4,1 היא \"הדרך הב'\" אצל הרב רפמן, ע\"פ ביאור הגר\"א לזוהר - כנגד ד' אותיות הוי\"ה."
+        "note": "חלוקת 4,4,4,1 היא \"הדרך הב'\" אצל הרב רפמן, ע\"פ ביאור הגר\"א לזוהר - כנגד ד' אותיות הוי\"ה.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       }
     },
     {
@@ -242,14 +287,14 @@
       ],
       "axisScores": {
         "AFFORDABILITY": 5,
-        "BEAUTY": 7,
+        "BEAUTY": 5,
         "RISHONIM_BASIS": 3,
         "GENERAL_SOURCE_BASIS": 6,
         "COMMONNESS": 4,
-        "UNIQUENESS": 7,
-        "CONSENSUS_COVERAGE": 3,
+        "UNIQUENESS": 6,
+        "CONSENSUS_COVERAGE": 4,
         "NAMED_ATTRIBUTION": 7,
-        "EXPLAINABILITY": 3
+        "EXPLAINABILITY": 5
       },
       "variants": [],
       "sources": [
@@ -268,11 +313,26 @@
       "disqualifyingTags": [],
       "composition": {
         "threadCount": "RAMBAM_1_OF_8",
-        "windingColor": "MOSTLY_TEKHELET_FULL_CHULYA",
+        "windingColor": "MOSTLY_TEKHELET_SINGLE_WIND",
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "YEMENITE_INVERTED",
-        "knotScheme": "WINDS_7_8_11_13",
-        "note": "\"הדרך הג'\" אצל הרב רפמן, ע\"פ האר\"י. הקשרים מחלקים את הכריכות (לא החוליות) - הרב רפמן מסתייג מכך שהקשרים נופלים באמצע חוליה ופוגעים ב\"היכר חוליות\"."
+        "knotScheme": "FIVE_WINDS_7_8_11_13",
+        "note": "רק הליפוף הראשון והאחרון בלבן, לא חוליה שלמה. בעיקרון החוליות הן של שלוש כריכות, אבל אפשר גם לספור את החלוקה כ-7,8,11,13. חב\"ד וראדזין קושרים אותו דבר.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       }
     },
     {
@@ -286,13 +346,13 @@
         "general"
       ],
       "axisScores": {
-        "AFFORDABILITY": 5,
+        "AFFORDABILITY": 6,
         "BEAUTY": 7,
         "RISHONIM_BASIS": 7,
         "GENERAL_SOURCE_BASIS": 8,
         "COMMONNESS": 2,
-        "UNIQUENESS": 8,
-        "CONSENSUS_COVERAGE": 8,
+        "UNIQUENESS": 7,
+        "CONSENSUS_COVERAGE": 7,
         "NAMED_ATTRIBUTION": 6,
         "EXPLAINABILITY": 7
       },
@@ -318,8 +378,23 @@
         "windingColor": "MOSTLY_TEKHELET_SINGLE_WIND",
         "chulyotCount": "SEVEN_OR_THIRTEEN",
         "chulyaForm": "YEMENITE_SELF_HOLDING",
-        "knotScheme": "NONE",
-        "note": "הקשירה והחוליות זהות לרמב\"ם; ההבדל היחיד הוא חוט תכלת שלם במקום חצי חוט."
+        "knotScheme": "CHULYA_IS_KNOT",
+        "note": "הקשירה והחוליות זהות לרמב\"ם; ההבדל היחיד הוא חוט תכלת שלם במקום חצי חוט. ראוי להחמיר ולהוסיף קשר כפול בהתחלה.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       }
     },
     {
@@ -334,12 +409,12 @@
       ],
       "axisScores": {
         "AFFORDABILITY": 6,
-        "BEAUTY": 6,
-        "RISHONIM_BASIS": 5,
-        "GENERAL_SOURCE_BASIS": 5,
-        "COMMONNESS": 1,
-        "UNIQUENESS": 9,
-        "CONSENSUS_COVERAGE": 4,
+        "BEAUTY": 7,
+        "RISHONIM_BASIS": 4,
+        "GENERAL_SOURCE_BASIS": 4,
+        "COMMONNESS": 3,
+        "UNIQUENESS": 8,
+        "CONSENSUS_COVERAGE": 8,
         "NAMED_ATTRIBUTION": 5,
         "EXPLAINABILITY": 9
       },
@@ -365,7 +440,23 @@
         "windingColor": "ALTERNATING_CHULYOT",
         "chulyotCount": "THIRTEEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "note": "ההצעה במאמרו באקדמות כ\"ז: 7 חוליות תכלת מול 6 חוליות לבן, ובשתיים מחוליות התכלת כריכה בודדת של לבן - כך שמצד החוליות יש עדיפות לתכלת ומצד הכריכות ללבן. בתרשים מופיע \"עם קשר ביטחון\"."
+        "note": "חוליות לסירוגין, אבל הפוך מרב עמרם גאון: החוליה הראשונה והאחרונה בתכלת, כשהליפוף הראשון של הראשונה והאחרון של האחרונה בלבן. צורת החוליה יכולה להיות רגילה או תימנית, והקשרים - או רק אחד בהתחלה, או חלוקה לחמישה קשרים לפי אחת השיטות.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "knotScheme": "DOUBLE_AT_START"
       }
     },
     {
@@ -380,20 +471,29 @@
         "windingColor": "ALTERNATING_CHULYOT",
         "chulyotCount": "SEVEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "PAIRS_2_2_2_1",
-        "note": "תוספות פירשו שהקשר הוא לאחר כל זוג חוליות, וכך נוצרים חמישה קשרים לשבע חוליות."
+        "knotScheme": "FIVE_GROUPS_TOSAFOT",
+        "note": "תוספות פירשו שהקשר הוא לאחר כל זוג חוליות, וכך נוצרים חמישה קשרים לשבע חוליות.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       },
       "affinityTags": [
         "general"
       ],
       "axisScores": {
         "AFFORDABILITY": 1,
-        "BEAUTY": 6,
+        "BEAUTY": 7,
         "RISHONIM_BASIS": 9,
-        "GENERAL_SOURCE_BASIS": 8,
-        "COMMONNESS": 4,
-        "UNIQUENESS": 5,
-        "CONSENSUS_COVERAGE": 9,
+        "GENERAL_SOURCE_BASIS": 7,
+        "COMMONNESS": 3,
+        "UNIQUENESS": 3,
+        "CONSENSUS_COVERAGE": 3,
         "NAMED_ATTRIBUTION": 8,
         "EXPLAINABILITY": 7
       },
@@ -424,9 +524,24 @@
         "threadCount": "RAAVAD_2_OF_8",
         "windingColor": "ALTERNATING_CHULYOT",
         "chulyotCount": "SEVEN_OR_THIRTEEN",
-        "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "NONE",
-        "note": "בלי חמשת הקשרים - הוספתם היא מה שמייצר את שיטות החינוך (3,3,3,4) והגר\"א (4,4,4,1)."
+        "chulyaForm": "YEMENITE_SELF_HOLDING",
+        "knotScheme": "CHULYA_IS_KNOT",
+        "note": "חוליות תימניות. ההבדל מספר החינוך הוא בדיוק זה שאין כאן חמישה קשרים.",
+        "windsPerChulya": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ]
       },
       "affinityTags": [
         "general"
@@ -437,7 +552,7 @@
         "RISHONIM_BASIS": 6,
         "GENERAL_SOURCE_BASIS": 8,
         "COMMONNESS": 4,
-        "UNIQUENESS": 6,
+        "UNIQUENESS": 7,
         "CONSENSUS_COVERAGE": 6,
         "NAMED_ATTRIBUTION": 8,
         "EXPLAINABILITY": 6
@@ -470,7 +585,7 @@
         "windingColor": "MOSTLY_TEKHELET_SINGLE_WIND",
         "chulyotCount": "SEVEN",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "KNOT_EVERY_CHULYA",
+        "knotScheme": "DOUBLE_EVERY_CHULYA",
         "windsPerChulya": [
           5,
           5,
@@ -486,15 +601,15 @@
         "general"
       ],
       "axisScores": {
-        "AFFORDABILITY": 5,
-        "BEAUTY": 7,
-        "RISHONIM_BASIS": 8,
-        "GENERAL_SOURCE_BASIS": 9,
+        "AFFORDABILITY": 8,
+        "BEAUTY": 4,
+        "RISHONIM_BASIS": 3,
+        "GENERAL_SOURCE_BASIS": 7,
         "COMMONNESS": 3,
         "UNIQUENESS": 7,
         "CONSENSUS_COVERAGE": 7,
         "NAMED_ATTRIBUTION": 6,
-        "EXPLAINABILITY": 10
+        "EXPLAINABILITY": 9
       },
       "variants": [],
       "sources": [
@@ -529,21 +644,27 @@
         "windingColor": "MOSTLY_TEKHELET_SINGLE_WIND",
         "chulyotCount": "FOUR",
         "chulyaForm": "STANDARD_DOUBLE_KNOT",
-        "knotScheme": "WINDS_7_8_11_13",
-        "note": "אשכנזי: 7,8,11,13 כריכות. ספרדי: 10,5,6,5. אלה חלוקות כריכות ולא חוליות - ולכן אין כאן \"היכר חוליות\" של שלוש כריכות כדין הגמרא."
+        "knotScheme": "FIVE_WINDS_7_8_11_13",
+        "note": "אשכנזי: 7,8,11,13 כריכות. ספרדי: 10,5,6,5. אלה חלוקות כריכות ולא חוליות - ולכן אין כאן \"היכר חוליות\" של שלוש כריכות כדין הגמרא.",
+        "windsPerChulya": [
+          7,
+          8,
+          11,
+          13
+        ]
       },
       "affinityTags": [
         "general",
         "white-resemblance"
       ],
       "axisScores": {
-        "AFFORDABILITY": 7,
-        "BEAUTY": 5,
+        "AFFORDABILITY": 8,
+        "BEAUTY": 4,
         "RISHONIM_BASIS": 2,
-        "GENERAL_SOURCE_BASIS": 3,
-        "COMMONNESS": 7,
+        "GENERAL_SOURCE_BASIS": 4,
+        "COMMONNESS": 6,
         "UNIQUENESS": 1,
-        "CONSENSUS_COVERAGE": 3,
+        "CONSENSUS_COVERAGE": 2,
         "NAMED_ATTRIBUTION": 2,
         "EXPLAINABILITY": 3
       },

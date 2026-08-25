@@ -40,7 +40,10 @@ object CompositionCoherence {
 
         // חוליות תימניות + חמישה קשרים: התימנים לא עשו חמישה קשרים מלכתחילה.
         if (c.chulyaForm == ChulyaForm.YEMENITE_SELF_HOLDING &&
-            c.knotScheme != null && c.knotScheme != KnotScheme.NONE
+            c.knotScheme in setOf(
+                KnotScheme.FIVE_GROUPS_CHINUCH, KnotScheme.FIVE_GROUPS_GRA,
+                KnotScheme.FIVE_GROUPS_TOSAFOT, KnotScheme.FIVE_WINDS_7_8_11_13
+            )
         ) {
             out += Remark(
                 Severity.INFO,
@@ -53,7 +56,7 @@ object CompositionCoherence {
         }
 
         // קשרים לפי כריכות ולא חוליות: פוגע ב"היכר חוליות".
-        if (c.knotScheme == KnotScheme.WINDS_7_8_11_13) {
+        if (c.knotScheme == KnotScheme.FIVE_WINDS_7_8_11_13) {
             out += Remark(
                 Severity.INFO,
                 "הקשרים מחלקים כריכות ולא חוליות",

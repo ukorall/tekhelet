@@ -27,6 +27,7 @@ object Routes {
     const val TYING_GUIDE = "tying_guide"
     const val EXTRAS = "extras"
     const val QUESTIONNAIRE = "questionnaire"
+    const val LOOK = "look"
     const val TIE_WIND = "tie_wind"
     const val TIE_VISUAL = "tie_visual"
     const val RESULTS = "results"
@@ -48,6 +49,7 @@ private fun titleFor(route: String?): String = when {
     route == Routes.TYING_GUIDE -> Topic.TYING_GUIDE.title
     route == Routes.EXTRAS -> Topic.EXTRAS.title
     route == Routes.QUESTIONNAIRE -> "השאלון"
+    route == Routes.LOOK -> "מה יפה בעיניך"
     route == Routes.TIE_WIND -> "שאלת המשך"
     route == Routes.TIE_VISUAL -> "מה יפה בעיניך"
     route == Routes.RESULTS -> "התוצאות"
@@ -168,7 +170,17 @@ fun AppNavHost() {
             composable(Routes.QUESTIONNAIRE) {
                 QuestionnaireScreen(
                     viewModel = viewModel,
-                    onFinishedPrimaryQuestions = {
+                    onFinishedPrimaryQuestions = { navController.navigate(Routes.LOOK) }
+                )
+            }
+
+            composable(Routes.LOOK) {
+                LookPreferenceScreen(
+                    selected = viewModel.lookPreference,
+                    knotPreference = viewModel.knotLookPreference,
+                    onSelect = viewModel::chooseLook,
+                    onSelectKnot = viewModel::chooseKnotLook,
+                    onContinue = {
                         viewModel.computeResults()
                         navigateAfterPrimaryQuestions(navController, viewModel)
                     }
@@ -184,7 +196,7 @@ fun AppNavHost() {
             composable(Routes.TIE_VISUAL) {
                 VisualTieBreakerScreen(viewModel) {
                     navController.navigate(Routes.RESULTS) {
-                        popUpTo(Routes.QUESTIONNAIRE) { inclusive = true }
+                        popUpTo(Routes.LOOK) { inclusive = true }
                     }
                 }
             }
@@ -254,7 +266,7 @@ private fun navigateAfterPrimaryQuestions(navController: NavHostController, view
         else -> Routes.RESULTS
     }
     navController.navigate(destination) {
-        popUpTo(Routes.QUESTIONNAIRE) { inclusive = destination == Routes.RESULTS }
+        popUpTo(Routes.LOOK) { inclusive = destination == Routes.RESULTS }
     }
 }
 
@@ -262,6 +274,6 @@ private fun navigateAfterWindTieBreaker(navController: NavHostController, viewMo
     viewModel.dismissWindCountTieBreaker()
     val destination = if (viewModel.showVisualTieBreaker) Routes.TIE_VISUAL else Routes.RESULTS
     navController.navigate(destination) {
-        popUpTo(Routes.QUESTIONNAIRE) { inclusive = destination == Routes.RESULTS }
+        popUpTo(Routes.LOOK) { inclusive = destination == Routes.RESULTS }
     }
 }

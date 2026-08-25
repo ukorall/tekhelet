@@ -45,6 +45,13 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     /** ההרכב שהמשתמש בונה ידנית בבונה ההרכב האישי. */
     var customComposition by mutableStateOf(KnotComposition()); private set
 
+    /** ההעדפה החזותית המפורשת - "מה יפה בעיניי". ראו LookPreferenceScreen. */
+    var lookPreference by mutableStateOf<LookPreference?>(null); private set
+    var knotLookPreference by mutableStateOf<KnotLookPreference?>(null); private set
+
+    fun chooseLook(p: LookPreference) { lookPreference = p }
+    fun chooseKnotLook(p: KnotLookPreference) { knotLookPreference = p }
+
     val history = historyStore.consultations
 
     init {
@@ -59,7 +66,11 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun answerFor(questionId: String): Answer? = answers[questionId]
 
     fun computeResults() {
-        val outcome = ScoringEngine.evaluate(allMethods, allQuestions, answers.values.toList())
+        val outcome = ScoringEngine.evaluate(
+            allMethods, allQuestions, answers.values.toList(),
+            lookPreference = lookPreference,
+            knotPreference = knotLookPreference
+        )
         results = outcome.ranked
         visibleResultCount = outcome.suggestedVisibleCount
         showWindCountTieBreaker = ScoringEngine.needsWindCountTieBreaker(outcome.ranked)
@@ -76,6 +87,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun resetQuestionnaire() {
         answers = emptyMap(); results = emptyList()
         showWindCountTieBreaker = false; showVisualTieBreaker = false
+        lookPreference = null; knotLookPreference = null
     }
 
     // --- מתייעץ ---

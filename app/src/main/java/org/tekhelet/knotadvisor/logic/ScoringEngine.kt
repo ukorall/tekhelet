@@ -36,10 +36,72 @@ object ScoringEngine {
         answers: List<Answer>
     ): List<ScoredMethod> = evaluate(methods, questions, answers).ranked
 
+    /**
+     * מחיל את ההעדפה החזותית המפורשת. ההתאמה נמדדת מול ההרכב בפועל (איך השיטה
+     * באמת נראית), ולא מול ציון "יופי" שנקבע מראש.
+     */
+    private fun applyLookPreference(
+        sm: ScoredMethod,
+        look: LookPreference?,
+        knots: KnotLookPreference?,
+        beautyWeight: Double
+    ): ScoredMethod {
+        if (look == null && knots == null) return sm
+        var delta = 0.0
+        val parts = mutableListOf<String>()
+
+        look?.let {
+            val matches = when (it) {
+                LookPreference.ALTERNATING_WINDS ->
+                    sm.method.composition.windingColor == WindingColor.ALTERNATING_WINDS
+                LookPreference.ALTERNATING_CHULYOT ->
+                    sm.method.composition.windingColor == WindingColor.ALTERNATING_CHULYOT
+                LookPreference.ALL_TEKHELET ->
+                    sm.method.composition.windingColor == WindingColor.MOSTLY_TEKHELET_SINGLE_WIND ||
+                        sm.method.composition.windingColor == WindingColor.MOSTLY_TEKHELET_FULL_CHULYA
+            }
+            if (matches) {
+                delta += LOOK_PREFERENCE_WEIGHT * beautyWeight * 6.0
+                parts += "היא נראית בדיוק כמו שאמרת שיפה בעיניך"
+            } else {
+                delta -= LOOK_PREFERENCE_WEIGHT * beautyWeight * 3.0
+            }
+        }
+
+        knots?.let {
+            val visibleKnots = when (sm.method.composition.knotScheme) {
+                KnotScheme.DOUBLE_EVERY_CHULYA, KnotScheme.FIVE_GROUPS_CHINUCH,
+                KnotScheme.FIVE_GROUPS_GRA, KnotScheme.FIVE_GROUPS_TOSAFOT,
+                KnotScheme.FIVE_WINDS_7_8_11_13 -> true
+                else -> false
+            }
+            when (it) {
+                KnotLookPreference.NICER ->
+                    if (visibleKnots) { delta += beautyWeight * 3.0; parts += "יש בה קשרים כפולים גלויים" }
+                KnotLookPreference.LESS_NICE ->
+                    if (!visibleKnots) { delta += beautyWeight * 3.0; parts += "היא כמעט בלי קשרים גלויים" }
+                KnotLookPreference.NEUTRAL -> Unit
+            }
+        }
+
+        val explanation = if (parts.isEmpty()) sm.explanation
+        else sm.explanation + " " + parts.joinToString(", ") + "."
+        return sm.copy(score = (sm.score + delta).coerceIn(0.0, 100.0), explanation = explanation)
+    }
+
+    /**
+     * כמה משקל נותנים להעדפה החזותית המפורשת, ביחס לציון היופי הכללי של שיטה.
+     * גדול מ-1 בכוונה: "מה יפה בעיניך" הוא מידע אישי וישיר, בעוד שציון היופי
+     * של שיטה הוא הערכה כללית שלי - ולכן ההעדפה שלך גוברת עליה.
+     */
+    private const val LOOK_PREFERENCE_WEIGHT = 2.0
+
     fun evaluate(
         methods: List<KnotMethod>,
         questions: List<Question>,
-        answers: List<Answer>
+        answers: List<Answer>,
+        lookPreference: LookPreference? = null,
+        knotPreference: KnotLookPreference? = null
     ): Outcome {
         val questionById = questions.associateBy { it.id }
         val answerByQuestionId = answers.associateBy { it.questionId }
@@ -48,8 +110,10 @@ object ScoringEngine {
         val weights = buildNormalizedWeights(questions, answerByQuestionId, clarity)
         val affinityTags = buildAffinityTags(questionById, answerByQuestionId)
 
+        val beautyWeight = weights[Axis.BEAUTY] ?: 1.0
         val ranked = methods
             .map { scoreOne(it, weights, affinityTags) }
+            .map { applyLookPreference(it, lookPreference, knotPreference, beautyWeight) }
             .sortedByDescending { it.score }
 
         return Outcome(

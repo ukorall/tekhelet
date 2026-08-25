@@ -44,6 +44,14 @@ fun QuestionnaireScreen(
                 "כל השאלות במסך אחד - אפשר לגלול, לשנות תשובה בכל שלב, ולסיים מתי שנוח.",
                 style = MaterialTheme.typography.bodySmall
             )
+            Spacer(Modifier.height(10.dp))
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    "בכל השאלות שיש בהן סרגל: 10 זה \"הכי חשוב לי\", 1 זה \"הכי פחות חשוב לי\".",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
             Spacer(Modifier.height(24.dp))
 
             questions.forEachIndexed { index, question ->
@@ -90,7 +98,7 @@ private fun SliderQuestion(viewModel: AppViewModel, question: Question) {
     var value by remember(question.id) {
         mutableFloatStateOf((viewModel.answerFor(question.id)?.sliderValue ?: 5).toFloat())
     }
-    Text("1 = לא חשוב בכלל, 10 = חשוב מאוד. ערך נוכחי: ${value.toInt()}", style = MaterialTheme.typography.bodyMedium)
+    Text("${value.toInt()}", style = MaterialTheme.typography.titleMedium)
     Slider(
         value = value,
         onValueChange = {
