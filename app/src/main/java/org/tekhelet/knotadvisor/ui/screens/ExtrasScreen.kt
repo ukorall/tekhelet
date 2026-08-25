@@ -28,13 +28,13 @@ fun ExtrasScreen(onOpenLibrary: () -> Unit, onOpenTree: () -> Unit) {
         )
 
         Spacer(Modifier.height(16.dp))
-        Card(Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = onOpenLibrary) {
+        Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = onOpenLibrary) {
             Column(Modifier.padding(14.dp)) {
                 Text("ספריית השיטות", style = MaterialTheme.typography.titleSmall)
                 Text("לעבור על כל השיטות בלי לעבור שאלון", style = MaterialTheme.typography.bodySmall)
             }
         }
-        Card(Modifier.fillMaxWidth().padding(bottom = 16.dp), onClick = onOpenTree) {
+        Card(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), onClick = onOpenTree) {
             Column(Modifier.padding(14.dp)) {
                 Text("מפת השיטות", style = MaterialTheme.typography.titleSmall)
                 Text("התרשים שלי, בגרסה שאפשר לנווט בה", style = MaterialTheme.typography.bodySmall)
@@ -52,7 +52,7 @@ fun ExtrasScreen(onOpenLibrary: () -> Unit, onOpenTree: () -> Unit) {
 @Composable
 private fun ExpandableEntry(entry: Entry) {
     var open by remember { mutableStateOf(false) }
-    Card(Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { open = !open }) {
+    Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { open = !open }) {
         Column(Modifier.padding(14.dp)) {
             Text(entry.title, style = MaterialTheme.typography.titleSmall)
             AnimatedVisibility(open) {

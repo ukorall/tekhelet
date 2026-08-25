@@ -59,7 +59,7 @@ fun TopicsHomeScreen(
 
         Spacer(Modifier.height(20.dp))
         if (journey.active) {
-            Card(Modifier.fillMaxWidth(), onClick = onContinueJourney) {
+            Card(modifier = Modifier.fillMaxWidth(), onClick = onContinueJourney) {
                 Column(Modifier.padding(16.dp)) {
                     Text("להמשיך מאיפה שעצרנו", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
@@ -72,7 +72,7 @@ fun TopicsHomeScreen(
                 }
             }
         } else {
-            Card(Modifier.fillMaxWidth(), onClick = onStartJourney) {
+            Card(modifier = Modifier.fillMaxWidth(), onClick = onStartJourney) {
                 Column(Modifier.padding(16.dp)) {
                     Text("לצאת למסע", style = MaterialTheme.typography.titleMedium)
                     Spacer(Modifier.height(4.dp))
@@ -128,7 +128,7 @@ private fun ConsultingForField(value: String, onChange: (String) -> Unit) {
 
 @Composable
 private fun TopicCard(topic: Topic, onClick: () -> Unit) {
-    Card(Modifier.fillMaxWidth(), onClick = onClick) {
+    Card(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(topic.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))

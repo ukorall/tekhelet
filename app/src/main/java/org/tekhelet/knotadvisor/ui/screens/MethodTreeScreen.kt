@@ -2,6 +2,9 @@ package org.tekhelet.knotadvisor.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.FlowRowScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -93,7 +96,7 @@ fun MethodTreeScreen(
             )
         }
         matching.forEach { m ->
-            Card(Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { onOpenMethod(m.id) }) {
+            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { onOpenMethod(m.id) }) {
                 Column(Modifier.padding(14.dp)) {
                     Text(m.name, style = MaterialTheme.typography.titleSmall)
                     Text(m.shortSummary, style = MaterialTheme.typography.bodySmall)
@@ -144,8 +147,9 @@ private fun <T> TreeLevel(
     }
 }
 
-/** עטיפה פשוטה שמאפשרת גלישת שורות בלי להסתמך על API ניסיוני. */
+/** עטיפה לגלישת שורות. FlowRow עדיין מסומן כניסיוני, ולכן ה-OptIn מרוכז כאן בלבד. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FlowRowSimple(content: @Composable () -> Unit) {
-    androidx.compose.foundation.layout.FlowRow { content() }
+private fun FlowRowSimple(content: @Composable FlowRowScope.() -> Unit) {
+    FlowRow { content() }
 }

@@ -49,8 +49,7 @@ fun JourneyScreen(
         JourneyStation.ordered.forEach { station ->
             val isCurrent = station == journey.currentStation
             val isDone = station in journey.completed
-            Card(
-                Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
                 onClick = { onOpenStation(station) },
                 colors = CardDefaults.cardColors(
                     containerColor = when {
