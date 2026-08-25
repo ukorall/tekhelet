@@ -1,1 +1,1 @@
-Built from commit c4564e0f4b17943336f0c04fc3b938e6ab756e36 on claude/hebrew-first-bundle-grfaye at 2026-08-25T13:37:44Z
+Built from commit 4cf5d334f2ca1f58059bc1895cabdfb16344c55d on claude/file-status-update-build-test-sxdnai at 2026-08-25T13:43:59Z
