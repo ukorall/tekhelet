@@ -115,6 +115,9 @@ val syncContentImages by tasks.registering(Copy::class) {
     description = "מעתיק תמונות קשירה מ-content/images/<method-id>/ לתוך app/src/main/assets/images/"
     from(rootProject.layout.projectDirectory.dir("content/images"))
     into(layout.projectDirectory.dir("src/main/assets/images"))
+    // התיעוד שיושב לצד התמונות (README, PROVENANCE) הוא בשביל מי שעורך את
+    // content/, לא בשביל המכשיר. בלי זה הוא נארז ל-APK ונשלח לכל משתמש.
+    exclude("**/*.md")
 }
 
 val syncContentTexts by tasks.registering(Copy::class) {
