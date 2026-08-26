@@ -44,7 +44,7 @@ fun CompositionCard(composition: KnotComposition, modifier: Modifier = Modifier)
                 "כל שיטה היא צירוף של הכרעות בחמישה דיונים נפרדים",
                 style = MaterialTheme.typography.labelSmall
             )
-            KnotDivider(modifier = Modifier.padding(vertical = 10.dp))
+            GadilRule(modifier = Modifier.padding(vertical = 10.dp))
 
             rows.forEach { (title, value, binding) ->
                 Row(verticalAlignment = Alignment.CenterVertically) {

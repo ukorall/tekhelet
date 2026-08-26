@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.FeedbackKind
 import org.tekhelet.knotadvisor.ui.AppViewModel
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 
 @Composable
 fun FeedbackScreen(viewModel: AppViewModel, fromScreen: String) {
@@ -25,7 +25,7 @@ fun FeedbackScreen(viewModel: AppViewModel, fromScreen: String) {
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Text("יש לך הערה בשבילי?", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
         Text(
             "כל הערה עוזרת - טעות בתוכן, ניסוח מבלבל, משהו שחסר, או סתם מחשבה. " +
                 "אחרי ששולחים, נוצר קובץ קטן שאפשר לשלוח לי בוואטסאפ או במייל.",

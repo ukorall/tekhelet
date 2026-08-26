@@ -18,7 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.*
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 
 /**
@@ -58,7 +58,7 @@ fun MethodTreeScreen(
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
         Spacer(Modifier.height(12.dp))
         Text("מפת השיטות", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
         Text(
             "זה התרשים שלי, רק שאפשר לרדת בו שלב-שלב. בכל צומת בוחרים ענף, " +
                 "והמפה מצטמצמת. שום שיטה לא נפסלת - מה שיוצא מהענף פשוט יורד למטה. " +

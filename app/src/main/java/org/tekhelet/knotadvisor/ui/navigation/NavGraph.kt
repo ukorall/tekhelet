@@ -73,8 +73,20 @@ fun AppNavHost() {
 
     Scaffold(
         topBar = {
+            // סרגל עליון שקט ונמוך: שם המסך יושב עכשיו בתוך הדף עצמו (PageHeader),
+            // בגופן הספר ובגודל שיש לו מקום לנשום בעברית. הסרגל נשאר רק בשביל
+            // הניווט, ולכן הוא בצבע הנייר ובלי כותרת גדולה שתתחרה בכותרת האמיתית.
             TopAppBar(
-                title = { Text(titleFor(route)) },
+                title = {
+                    Text(
+                        titleFor(route),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                ),
                 navigationIcon = {
                     if (!atHome) {
                         IconButton(onClick = { navController.popBackStack() }) {

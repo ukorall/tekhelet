@@ -7,6 +7,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tekhelet.knotadvisor.logic.GadilBuilder
+import org.tekhelet.knotadvisor.logic.Products
 import org.tekhelet.knotadvisor.logic.ScoringEngine
 import org.tekhelet.knotadvisor.logic.ThreadLength
 import org.tekhelet.knotadvisor.logic.TyingInstructions
@@ -231,6 +232,35 @@ class ContentLoadingTest {
         val before = neutral.first { it.method.id == target.id }.score
         val after = preferring.first { it.method.id == target.id }.score
         assertTrue("ההעדפה החזותית לא העלתה את הציון", after > before)
+    }
+
+    /**
+     * לכל שיטה חייב לצאת מוצר להמליץ עליו. הבדיקה הזו נוספה אחרי שהתברר
+     * שהקטלוג הכיל "תוספות 7" - מוצר שפשוט לא קיים בחנות ושהמצאתי בטעות.
+     * המחירים עצמם נלקחו מאז מהקטלוג האמיתי של ארגון פתיל תכלת.
+     */
+    @Test
+    fun `every method gets at least one product recommendation`() {
+        methods.forEach { m ->
+            val r = Products.recommend(m.composition)
+            assertTrue(
+                "${m.id}: אין שום מוצר מתאים (${r.tekheletWinds} כריכות בתכלת, " +
+                    "מדרגה ${r.tier.label})",
+                r.matches.isNotEmpty()
+            )
+        }
+    }
+
+    /** מחיר של אפס או שלילי אומר שנפלה טעות הקלדה בקטלוג. */
+    @Test
+    fun `every product has a sane price`() {
+        Products.catalogue.forEach {
+            assertTrue("${it.name}: מחיר דק לא הגיוני", it.priceThin in 50..1000)
+            assertTrue("${it.name}: העבה אמור לעלות יותר מהדק", it.priceThick > it.priceThin)
+        }
+        Products.lishmah.forEach {
+            assertTrue("${it.name}: מחיר לא הגיוני", it.price in 50..2000)
+        }
     }
 
     @Test

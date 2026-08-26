@@ -14,7 +14,7 @@ import org.tekhelet.knotadvisor.logic.CompositionCoherence
 import org.tekhelet.knotadvisor.logic.GadilBuilder
 import org.tekhelet.knotadvisor.model.*
 import org.tekhelet.knotadvisor.ui.AppViewModel
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 
 /**
@@ -34,7 +34,7 @@ fun CompositionBuilderScreen(viewModel: AppViewModel) {
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Text("בונה ההרכב האישי", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
         Text(
             "כל שיטה מוכרת היא בסך הכול צירוף של הכרעות בחמישה דיונים. כאן אתה מכריע " +
                 "בכל אחד בעצמו ורואה מיד מה יצא. אין כאן צירוף \"אסור\" - יש צירופים " +

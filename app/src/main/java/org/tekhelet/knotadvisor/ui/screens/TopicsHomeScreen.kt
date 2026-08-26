@@ -5,13 +5,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.JourneyState
 import org.tekhelet.knotadvisor.model.Topic
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * מסך הפתיחה. הטון כאן מכוון: זו לא אנציקלופדיה שמכריזה על האמת, אלא שיחה
@@ -30,101 +28,89 @@ fun TopicsHomeScreen(
     onSetConsultingFor: (String) -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
     ) {
-        Spacer(Modifier.height(8.dp))
-        Text("בורר קשירת תכלת", style = MaterialTheme.typography.headlineMedium)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-
-        Text(
-            "ברכותיי! אתה בדרך אל האור.",
-            style = MaterialTheme.typography.titleSmall
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "בורר קשירת תכלת",
+            kicker = "ברכותיי! אתה בדרך אל האור."
         )
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(16.dp))
+        GadilRule()
+        Spacer(Modifier.height(20.dp))
+
         Text(
             "נהוג בעולם שכל מי שרוצה להתחיל עם תכלת מתחיל בלשאול מישהו, קורא מאמר, " +
                 "ואז מתחיל לטבוע במידע בלי לראות את הדרך החוצה. באתי לעקור את המנהג הזה " +
                 "מהשורש, בתקווה לעשות יותר תועלת מנזק.",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyLarge
         )
-        Spacer(Modifier.height(8.dp))
-        Text(
+        Spacer(Modifier.height(16.dp))
+        SourceQuote(
             "האפליקציה הזאת היא לא פסק הלכה ולא \"האמת\". היא בעצם שיחה איתי על הנושא - " +
                 "אותן שאלות שהייתי שואל אותך אם היינו יושבים יחד, ואותם שיקולים שהייתי " +
-                "מעלה בפניך. בסוף אתה מחליט.",
-            style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic)
+                "מעלה בפניך. בסוף אתה מחליט."
         )
 
         contentError?.let { err ->
-            Spacer(Modifier.height(16.dp))
-            Card(
-                Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                )
-            ) {
-                Column(Modifier.padding(14.dp)) {
-                    Text("בעיה בטעינת התוכן", style = MaterialTheme.typography.titleSmall)
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "חלק מהאפליקציה לא יעבוד. זה מה שנכשל:",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Text(err, style = MaterialTheme.typography.bodySmall)
-                }
+            Spacer(Modifier.height(20.dp))
+            Leaf(tinted = true) {
+                Text("בעיה בטעינת התוכן", style = MaterialTheme.typography.titleSmall)
+                Spacer(Modifier.height(4.dp))
+                Text("חלק מהאפליקציה לא יעבוד. זה מה שנכשל:", style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(6.dp))
+                Text(err, style = MaterialTheme.typography.bodySmall)
             }
         }
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(28.dp))
         ConsultingForField(consultingFor, onSetConsultingFor)
 
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(28.dp))
+        SectionHeading("המסע")
+        Spacer(Modifier.height(12.dp))
         if (journey.active) {
-            Card(modifier = Modifier.fillMaxWidth(), onClick = onContinueJourney) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("להמשיך מאיפה שעצרנו", style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-                    Text(journey.currentStation.title, style = MaterialTheme.typography.bodyMedium)
-                    Spacer(Modifier.height(10.dp))
-                    LinearProgressIndicator(
-                        progress = { journey.progress },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+            Leaf(onClick = onContinueJourney) {
+                Text("להמשיך מאיפה שעצרנו", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(journey.currentStation.title, style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(12.dp))
+                LinearProgressIndicator(
+                    progress = { journey.progress },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         } else {
-            Card(modifier = Modifier.fillMaxWidth(), onClick = onStartJourney) {
-                Column(Modifier.padding(16.dp)) {
-                    Text("לצאת למסע", style = MaterialTheme.typography.titleMedium)
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "מעבר מסודר בין כל התחנות, לפי הסדר. אפשר לעצור בכל שלב - " +
-                            "אני אזכור איפה עצרנו.",
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                }
+            Leaf(onClick = onStartJourney) {
+                Text("לצאת למסע", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "מעבר מסודר בין כל התחנות, לפי הסדר. אפשר לעצור בכל שלב - " +
+                        "אני אזכור איפה עצרנו.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
         }
 
-        Spacer(Modifier.height(20.dp))
-        Text("או פשוט לקפוץ לאן שרלוונטי לך", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(10.dp))
+        Spacer(Modifier.height(28.dp))
+        SectionHeading("או לקפוץ לאן שרלוונטי")
+        Spacer(Modifier.height(4.dp))
 
         Topic.entries.forEach { topic ->
-            TopicCard(topic) { onSelectTopic(topic) }
-            Spacer(Modifier.height(10.dp))
+            NavRow(
+                title = topic.title,
+                subtitle = topic.subtitle,
+                badge = if (topic.isImplemented) null else "בבנייה"
+            ) { onSelectTopic(topic) }
         }
 
-        Spacer(Modifier.height(10.dp))
-        OutlinedButton(onClick = onOpenHistory, modifier = Modifier.fillMaxWidth()) {
-            Text("ייעוצים קודמים")
-        }
-        Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onOpenFeedback, modifier = Modifier.fillMaxWidth()) {
-            Text("יש לך הערה בשבילי?")
-        }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(28.dp))
+        NavRow("ייעוצים קודמים", onClick = onOpenHistory)
+        NavRow("יש לך הערה בשבילי?", onClick = onOpenFeedback)
+        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -132,43 +118,17 @@ fun TopicsHomeScreen(
 private fun ConsultingForField(value: String, onChange: (String) -> Unit) {
     var text by remember(value) { mutableStateOf(value) }
     Column {
-        Text("עם מי אנחנו מתייעצים?", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(6.dp))
+        Text("עם מי אנחנו מתייעצים?", style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
         OutlinedTextField(
             value = text,
             onValueChange = { text = it; onChange(it) },
             placeholder = { Text("השם שלי, או של מי שאני עוזר לו") },
             singleLine = true,
+            shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         )
-        Text(
-            "אני שומר כל ייעוץ בנפרד, כדי שאפשר יהיה להיזכר אחר כך מה הומלץ למי.",
-            style = MaterialTheme.typography.labelSmall
-        )
-    }
-}
-
-@Composable
-private fun TopicCard(topic: Topic, onClick: () -> Unit) {
-    Card(modifier = Modifier.fillMaxWidth(), onClick = onClick) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(topic.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
-                if (!topic.isImplemented) {
-                    Surface(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = MaterialTheme.shapes.small
-                    ) {
-                        Text(
-                            "בבנייה",
-                            style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
-                        )
-                    }
-                }
-            }
-            Spacer(Modifier.height(4.dp))
-            Text(topic.subtitle, style = MaterialTheme.typography.bodySmall)
-        }
+        Spacer(Modifier.height(6.dp))
+        Aside("אני שומר כל ייעוץ בנפרד, כדי שאפשר יהיה לחזור ולראות מה יצא למי.")
     }
 }

@@ -3,12 +3,15 @@ package org.tekhelet.knotadvisor.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.ScoredMethod
 import org.tekhelet.knotadvisor.ui.AppViewModel
+import org.tekhelet.knotadvisor.ui.components.*
 import kotlin.math.roundToInt
 
 @Composable
@@ -17,72 +20,86 @@ fun ResultsScreen(
     onOpenDetail: (String) -> Unit,
     onFinalize: (String) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text("השיטות המתאימות ביותר עבורך", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(4.dp))
-        Text(
-            "הדירוג מבוסס על מה שאמרת לי שחשוב לך. זה לא פסק הלכה - כל השיטות כאן לגיטימיות, וזו רק דרך למיין ביניהן.",
-            style = MaterialTheme.typography.bodySmall
-        )
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = PageGutter),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Spacer(Modifier.height(20.dp))
+            PageHeader(
+                title = "מה יצא",
+                lead = "הדירוג מבוסס על מה שאמרת לי שחשוב לך. זה לא פסק הלכה - כל " +
+                    "השיטות כאן לגיטימיות, וזו רק דרך למיין ביניהן."
+            )
+        }
+
         if (viewModel.variantSuggestions.isNotEmpty()) {
-            Spacer(Modifier.height(14.dp))
-            Text("אולי בעצם זה מה שאתה מחפש", style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.height(6.dp))
-            viewModel.variantSuggestions.take(3).forEach { s ->
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    )
-                ) {
-                    Column(Modifier.padding(14.dp)) {
-                        Text(s.variant.name, style = MaterialTheme.typography.titleSmall)
-                        Spacer(Modifier.height(4.dp))
-                        Text(s.reason, style = MaterialTheme.typography.bodySmall)
-                        Spacer(Modifier.height(4.dp))
-                        Text(s.variant.rationale, style = MaterialTheme.typography.labelSmall)
-                    }
+            item {
+                Spacer(Modifier.height(8.dp))
+                SectionHeading("אולי בעצם זה מה שאתה מחפש")
+            }
+            items(viewModel.variantSuggestions.take(3)) { s ->
+                Leaf(tinted = true) {
+                    Text(s.variant.name, style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(5.dp))
+                    Text(s.reason, style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.height(6.dp))
+                    Aside(s.variant.rationale)
                 }
             }
         }
 
-        Spacer(Modifier.height(16.dp))
-
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(viewModel.results.take(viewModel.visibleResultCount)) { scored ->
-                ResultCard(
-                    scored = scored,
-                    onOpenDetail = { onOpenDetail(scored.method.id) },
-                    onFinalize = { onFinalize(scored.method.id) }
-                )
-            }
+        item {
+            Spacer(Modifier.height(8.dp))
+            SectionHeading("הדירוג")
         }
+
+        itemsIndexed(viewModel.results.take(viewModel.visibleResultCount)) { index, scored ->
+            ResultLeaf(
+                rank = index + 1,
+                scored = scored,
+                onOpenDetail = { onOpenDetail(scored.method.id) },
+                onFinalize = { onFinalize(scored.method.id) }
+            )
+        }
+
+        item { Spacer(Modifier.height(32.dp)) }
     }
 }
 
 @Composable
-private fun ResultCard(
+private fun ResultLeaf(
+    rank: Int,
     scored: ScoredMethod,
     onOpenDetail: () -> Unit,
     onFinalize: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth(), onClick = onOpenDetail) {
-        Column(Modifier.padding(16.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(scored.method.name, style = MaterialTheme.typography.titleMedium)
-                Text("${scored.score.roundToInt()}% התאמה", style = MaterialTheme.typography.titleMedium)
+    Leaf(onClick = onOpenDetail) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Pill("$rank", emphasised = rank == 1)
+            Spacer(Modifier.width(10.dp))
+            Text(
+                scored.method.name,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.weight(1f)
+            )
+            Text(
+                ltr("${scored.score.roundToInt()}%"),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(scored.method.shortSummary, style = MaterialTheme.typography.bodyMedium)
+        Spacer(Modifier.height(8.dp))
+        Aside(scored.explanation)
+        Spacer(Modifier.height(14.dp))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onOpenDetail, shape = MaterialTheme.shapes.small) {
+                Text("פרטים ומקורות")
             }
-            Spacer(Modifier.height(4.dp))
-            Text(scored.method.shortSummary, style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(8.dp))
-            Text(scored.explanation, style = MaterialTheme.typography.bodySmall)
-            Spacer(Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onOpenDetail) { Text("פרטים ומקורות") }
-                Button(onClick = onFinalize) { Text("זו הבחירה שלי") }
+            Button(onClick = onFinalize, shape = MaterialTheme.shapes.small) {
+                Text("זו הבחירה שלי")
             }
         }
     }

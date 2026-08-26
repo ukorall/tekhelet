@@ -8,7 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 
 private data class Entry(val title: String, val body: String, val link: String? = null)
 
@@ -20,7 +20,7 @@ private data class Entry(val title: String, val body: String, val link: String? 
 fun ExtrasScreen(onOpenLibrary: () -> Unit, onOpenTree: () -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Text("עיון נוסף והרחבות", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
         Text(
             "דברים שלא נכנסים לתהליך ההחלטה עצמו, אבל שווה להכיר. חלקם סוגיות " +
                 "שאני עצמי עדיין חוכך בהן.",

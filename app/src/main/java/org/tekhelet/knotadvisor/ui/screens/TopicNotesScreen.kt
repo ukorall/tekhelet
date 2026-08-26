@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.Topic
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 
 /**
  * מסך לאזור שעדיין אין בו שאלון פעיל. במקום "בקרוב" ריק, מוצג כאן מה שכבר
@@ -19,7 +19,7 @@ fun TopicNotesScreen(topic: Topic) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Text(topic.title, style = MaterialTheme.typography.headlineSmall)
         Text(topic.subtitle, style = MaterialTheme.typography.bodyMedium)
-        KnotDivider(modifier = Modifier.padding(top = 12.dp, bottom = 14.dp))
+        GadilRule(modifier = Modifier.padding(top = 12.dp, bottom = 14.dp))
 
         Text(
             "עוד לא בניתי כאן שאלון אינטראקטיבי. בינתיים, אלה הדברים שהייתי אומר לך " +

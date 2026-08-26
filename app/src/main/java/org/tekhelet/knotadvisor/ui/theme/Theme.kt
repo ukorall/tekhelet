@@ -12,6 +12,9 @@ import androidx.compose.ui.unit.dp
 // פלטת צבעים בהשראת תכלת: כל הגוונים השולטים נעים על סקאלה אחת בין כחול ללבן,
 // בלי גוונים "זרים" לסקאלה (לא חום/קרם/אפור ניטרלי) - גם בערכת הכהה. הגוון הראשי
 // כוון לפי תצלומי חוט תכלת אמיתי (פתיל תכלת) - כחול-פלדה בינוני, לא נייבי כהה מדי.
+//
+// הפלטה עצמה לא השתנתה ברענון העיצובי. מה שהשתנה הוא הטיפוגרפיה, הצורות,
+// ואוצר המילים של הרכיבים (ראו ui/components/Page.kt).
 private val TekhletBlue900 = Color(0xFF0D2A48) // הכי כהה - עוגן ניגודיות
 private val TekhletBlue700 = Color(0xFF2F5C88) // ראשי - קרוב לגוון החוט בתצלומים
 private val TekhletBlue500 = Color(0xFF4C7BAA)
@@ -33,13 +36,15 @@ private val LightColors = lightColorScheme(
     onTertiary = TekhletBlue900,
     tertiaryContainer = TekhletBlue50,
     onTertiaryContainer = TekhletBlue900,
+    // הרקע הוא ה"נייר" - לבן עם גוון כחול עדין; המשטחים עצמם לבנים.
     background = TekhletBlue50,
     onBackground = TekhletBlue900,
     surface = TekhletWhite,
     onSurface = TekhletBlue900,
     surfaceVariant = TekhletBlue100,
     onSurfaceVariant = TekhletBlue700,
-    outline = TekhletBlue300
+    outline = TekhletBlue300,
+    outlineVariant = TekhletBlue100
 )
 
 private val DarkColors = darkColorScheme(
@@ -59,16 +64,24 @@ private val DarkColors = darkColorScheme(
     onSurface = TekhletBlue50,
     surfaceVariant = TekhletBlue700,
     onSurfaceVariant = TekhletBlue100,
-    outline = TekhletBlue500
+    outline = TekhletBlue500,
+    outlineVariant = Color(0xFF23406B)
 )
 
-// פינות מעוגלות רכות יותר מברירת המחדל - בהשראת המרקם הרך של הבד והחוט בתצלומים.
+/**
+ * צורות חדות יותר מהקודמות (היו 6/10/16/22/28).
+ *
+ * זו החלטה עיצובית ולא קוסמטית: הפינות המעוגלות מאוד נתנו מראה של "אפליקציה
+ * עם בועות", וכל פסקת טקסט נראתה כמו כרטיס צף. הכיוון החדש הוא **דף מודפס** -
+ * הטקסט יושב על הנייר, והמסגרות הן קווי שיער דקים ולא קופסאות מרחפות. פינות
+ * חדות יותר הן חצי מהעבודה; החצי השני הוא הוויתור על הצללות (ראו Leaf).
+ */
 private val KnotShapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
-    small = RoundedCornerShape(10.dp),
-    medium = RoundedCornerShape(16.dp),
-    large = RoundedCornerShape(22.dp),
-    extraLarge = RoundedCornerShape(28.dp)
+    extraSmall = RoundedCornerShape(3.dp),
+    small = RoundedCornerShape(6.dp),
+    medium = RoundedCornerShape(10.dp),
+    large = RoundedCornerShape(14.dp),
+    extraLarge = RoundedCornerShape(20.dp)
 )
 
 @Composable
@@ -76,6 +89,7 @@ fun KnotAdvisorTheme(useDarkTheme: Boolean = false, content: @Composable () -> U
     MaterialTheme(
         colorScheme = if (useDarkTheme) DarkColors else LightColors,
         shapes = KnotShapes,
+        typography = HebrewTypography,
         content = content
     )
 }

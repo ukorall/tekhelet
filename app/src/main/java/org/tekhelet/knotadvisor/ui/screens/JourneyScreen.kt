@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.JourneyState
 import org.tekhelet.knotadvisor.model.JourneyStation
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 
 /**
  * מסך המסע: רואים את כל התחנות, איפה עומדים, ומה כבר הושלם. אפשר לקפוץ לכל
@@ -30,7 +30,7 @@ fun JourneyScreen(
         if (consultingFor.isNotBlank()) {
             Text("עבור $consultingFor", style = MaterialTheme.typography.bodyMedium)
         }
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
         Text(
             "חמש תחנות, לפי הסדר שבו הן באמת מגיעות. אפשר לעצור בכל שלב - " +
                 "אני זוכר איפה עצרנו.",

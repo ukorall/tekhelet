@@ -17,8 +17,7 @@ import org.tekhelet.knotadvisor.logic.ThreadLength
 import org.tekhelet.knotadvisor.logic.TyingInstructions
 import org.tekhelet.knotadvisor.model.KnotComposition
 import org.tekhelet.knotadvisor.model.KnotMethod
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
-import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * "איך בפועל" - מה לקנות ואיך לקשור. הכול נגזר מההרכב שנבחר, כולל המלצת המוצר
@@ -40,23 +39,25 @@ fun TyingGuideScreen(
     val summary = remember(composition) { GadilBuilder.plan(composition) }
     val recommendation = remember(composition) { Products.recommend(composition) }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("איך בפועל", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-        Text(
-            "אחרי שהחלטת - כאן נמצא מה לקנות ואיך לקשור. ההוראות נגזרות מההרכב " +
-                "שבחרת, אז הן מדויקות לשיטה שלך ולא כלליות.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "איך בפועל",
+            lead = "אחרי שהחלטת - כאן נמצא מה לקנות ואיך לקשור. ההוראות נגזרות מההרכב " +
+                "שבחרת, אז הן מדויקות לשיטה שלך ולא כלליות."
         )
 
-        Spacer(Modifier.height(16.dp))
-        Text("לפי איזה הרכב", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(24.dp))
+        SectionHeading("לפי איזה הרכב")
+        Spacer(Modifier.height(12.dp))
         if (initialComposition.threadCount != null) {
             FilterChip(
                 selected = useCustom,
                 onClick = { useCustom = true },
                 label = { Text("ההרכב שבניתי") },
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.padding(end = 6.dp, bottom = 4.dp)
             )
         }
@@ -65,116 +66,137 @@ fun TyingGuideScreen(
                 selected = !useCustom && selected?.id == m.id,
                 onClick = { selected = m; useCustom = false },
                 label = { Text(m.name, style = MaterialTheme.typography.labelSmall) },
+                shape = MaterialTheme.shapes.small,
                 modifier = Modifier.padding(end = 6.dp, bottom = 4.dp)
             )
         }
         TextButton(onClick = onOpenBuilder) { Text("או לבנות הרכב משלי") }
 
         // ================= מה לקנות =================
-        Spacer(Modifier.height(20.dp))
-        SectionTitle("מה לקנות")
+        Spacer(Modifier.height(24.dp))
+        SectionHeading("מה לקנות")
+        Spacer(Modifier.height(14.dp))
 
-        Card(
-            Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-        ) {
-            Column(Modifier.padding(16.dp)) {
-                Text("כלל האצבע", style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "סופרים את הכריכות בתכלת בלבד. קרוב ל-40 - צריך ארוך. קרוב ל-20 - " +
-                        "מספיק חינוך/גר\"א (או רמב\"ם 7, שמקביל לו מבחינה פרקטית). " +
-                        "קרוב ל-0 - מספיק \"7\", אבל זה כמעט אף פעם לא באמת רלוונטי.",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Spacer(Modifier.height(10.dp))
-                Text(recommendation.reasoning, style = MaterialTheme.typography.bodyMedium)
+        Leaf(tinted = true) {
+            Text("כלל האצבע", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "סופרים את הכריכות בתכלת בלבד. קרוב ל-40 - צריך ארוך. קרוב ל-20 - " +
+                    "מספיק חינוך/גר\"א (או רמב\"ם 7, שמקביל לו מבחינה פרקטית). " +
+                    "קרוב ל-0 - מספיק \"7\", אבל זה כמעט אף פעם לא באמת רלוונטי.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(Modifier.height(12.dp))
+            Text(recommendation.reasoning, style = MaterialTheme.typography.bodyLarge)
+        }
+
+        Spacer(Modifier.height(14.dp))
+        recommendation.matches.forEach { p ->
+            Leaf(modifier = Modifier.padding(bottom = 8.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(p.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        ltr("${p.priceThin}₪ דק · ${p.priceThick}₪ עבה"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+                Spacer(Modifier.height(3.dp))
+                Aside(p.tier.label)
+                p.note?.let {
+                    Spacer(Modifier.height(6.dp))
+                    Text(it, style = MaterialTheme.typography.bodySmall)
+                }
+            }
+        }
+
+        if (recommendation.lishmahOptions.isNotEmpty()) {
+            Spacer(Modifier.height(6.dp))
+            Text("ואם רוצים להדר: ניפוץ לשמה", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(4.dp))
+            Aside(
+                "זו לא מדרגת אורך אלא מדרגת הידור - הצמר נופץ לשמה. המחיר קופץ " +
+                    "משמעותית, ואין בו פיצול לדק ועבה."
+            )
+            Spacer(Modifier.height(8.dp))
+            recommendation.lishmahOptions.forEach { p ->
+                Row(Modifier.fillMaxWidth().padding(bottom = 6.dp)) {
+                    Text(p.name, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    Text(
+                        ltr("${p.price}₪"),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 
         Spacer(Modifier.height(10.dp))
-        recommendation.matches.forEach { p ->
-            Card(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
-                Column(Modifier.padding(14.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(p.name, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                        Text("${p.priceThin}₪ דק · ${p.priceThick}₪ עבה",
-                            style = MaterialTheme.typography.labelMedium)
-                    }
-                    Text(p.tier.label, style = MaterialTheme.typography.labelSmall)
-                    p.note?.let {
-                        Spacer(Modifier.height(4.dp))
-                        Text(it, style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-            }
-        }
-        Text(
-            "המחירים כאן הם קנה מידה בלבד, לא מחירון מדויק - הם משתנים בין מוכרים ולאורך זמן. " +
-                "בפועל המחיר נופל על מספר סגור מאוד של אפשרויות.",
-            style = MaterialTheme.typography.labelSmall
+        Aside(
+            "המחירים נלקחו מהחנות של ארגון פתיל תכלת (chanut.tekhelet.com) ונכונים " +
+                "לאוגוסט 2026. הם משתנים בין מוכרים ולאורך זמן, אז תתייחס אליהם כסדר " +
+                "גודל. השמות כאן הם השמות המדויקים שבחנות, כדי שיהיה אפשר למצוא אותם."
         )
 
         // ================= מחשבון שאריות =================
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(22.dp))
         LeftoverCalculator(composition)
 
         // ================= הציור =================
-        Spacer(Modifier.height(22.dp))
-        SectionTitle("איך זה ייראה")
-        ElevatedCard(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) {
-                TzitzitVisual(composition, height = 360.dp)
-                Spacer(Modifier.height(10.dp))
-                Text(
-                    "${summary.chulyot} חוליות · ${summary.totalWinds} כריכות " +
-                        "(${summary.tekheletWinds} בתכלת) · ${summary.doubleKnots} קשרים כפולים",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+        Spacer(Modifier.height(26.dp))
+        SectionHeading("איך זה ייראה")
+        Spacer(Modifier.height(14.dp))
+        Leaf {
+            TzitzitVisual(composition, height = 360.dp)
+            Spacer(Modifier.height(12.dp))
+            Aside(
+                ltr("${summary.chulyot}") + " חוליות · " +
+                    ltr("${summary.totalWinds}") + " כריכות (" +
+                    ltr("${summary.tekheletWinds}") + " בתכלת) · " +
+                    ltr("${summary.doubleKnots}") + " קשרים כפולים"
+            )
         }
 
         // ================= ההוראות =================
-        Spacer(Modifier.height(22.dp))
-        SectionTitle("צעד אחר צעד")
+        Spacer(Modifier.height(26.dp))
+        SectionHeading("צעד אחר צעד")
+        Spacer(Modifier.height(14.dp))
         steps.forEach { step ->
-            Row(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
-                Surface(color = MaterialTheme.colorScheme.primary, shape = MaterialTheme.shapes.small) {
+            Row(Modifier.fillMaxWidth().padding(bottom = 14.dp)) {
+                Surface(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = MaterialTheme.shapes.extraSmall
+                ) {
                     Text(
-                        "${step.number}",
+                        ltr("${step.number}"),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp)
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                     )
                 }
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(12.dp))
                 Column {
-                    Text(step.text, style = MaterialTheme.typography.bodyMedium)
+                    Text(step.text, style = MaterialTheme.typography.bodyLarge)
                     step.note?.let {
-                        Spacer(Modifier.height(3.dp))
-                        Text(it, style = MaterialTheme.typography.labelSmall)
+                        Spacer(Modifier.height(5.dp))
+                        Aside(it)
                     }
                 }
             }
         }
 
         Spacer(Modifier.height(12.dp))
-        Card(
-            Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Column(Modifier.padding(14.dp)) {
-                Text("להשלמה", style = MaterialTheme.typography.titleSmall)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    "כאן צריך להיכנס תפריט פנימי של סוגי קשירות וחוליות, עם הדרכה ספציפית " +
-                        "לכל אחת - תמונות שלב-אחר-שלב או סרטונים קצרים. " +
-                        "גם רשימת האורכים המדויקים בסנטימטרים תיכנס לכאן ותחליף את האומדן שבמחשבון.",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
+        Leaf(tinted = true) {
+            Text("להשלמה", style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                "כאן צריך להיכנס תפריט פנימי של סוגי קשירות וחוליות, עם הדרכה ספציפית " +
+                    "לכל אחת - תמונות שלב-אחר-שלב או סרטונים קצרים. " +
+                    "גם רשימת האורכים המדויקים בסנטימטרים תיכנס לכאן ותחליף את האומדן שבמחשבון.",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(32.dp))
     }
 }
 
@@ -188,63 +210,56 @@ private fun LeftoverCalculator(composition: KnotComposition) {
     val cm = input.toDoubleOrNull()
     val verdict = remember(composition, cm) { cm?.let { ThreadLength.check(composition, it) } }
 
-    Card(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("יש לי כבר חוט - זה יספיק?", style = MaterialTheme.typography.titleSmall)
-                    Text(
-                        "למי שמכין משאריות ולא רוצה לקנות סט חדש",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                TextButton(onClick = { open = !open }) { Text(if (open) "סגור" else "פתח") }
+    Leaf {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text("יש לי כבר חוט - זה יספיק?", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(2.dp))
+                Aside("למי שמכין משאריות ולא רוצה לקנות סט חדש")
             }
+            TextButton(onClick = { open = !open }) { Text(if (open) "סגור" else "פתח") }
+        }
 
-            AnimatedVisibility(open) {
-                Column {
-                    Spacer(Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = input,
-                        onValueChange = { input = it.filter { c -> c.isDigit() || c == '.' } },
-                        label = { Text("אורך חוט התכלת שיש לך, בס\"מ") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    verdict?.let { v ->
-                        Spacer(Modifier.height(10.dp))
-                        Surface(
-                            color = if (v.enough) MaterialTheme.colorScheme.primaryContainer
-                            else MaterialTheme.colorScheme.secondaryContainer,
-                            shape = MaterialTheme.shapes.small
-                        ) {
-                            Text(
-                                v.message,
-                                style = MaterialTheme.typography.bodyMedium,
-                                modifier = Modifier.padding(12.dp)
-                            )
-                        }
+        AnimatedVisibility(open) {
+            Column {
+                Spacer(Modifier.height(12.dp))
+                OutlinedTextField(
+                    value = input,
+                    onValueChange = { input = it.filter { c -> c.isDigit() || c == '.' } },
+                    label = { Text("אורך חוט התכלת שיש לך, בס\"מ") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                verdict?.let { v ->
+                    Spacer(Modifier.height(12.dp))
+                    Surface(
+                        color = if (v.enough) MaterialTheme.colorScheme.primaryContainer
+                        else MaterialTheme.colorScheme.secondaryContainer,
+                        shape = MaterialTheme.shapes.small
+                    ) {
+                        Text(
+                            v.message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(12.dp)
+                        )
                     }
-                    Spacer(Modifier.height(10.dp))
-                    ThreadLength.estimate(composition).notes.forEach {
-                        Text("• $it", style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 4.dp))
-                    }
-                    Spacer(Modifier.height(6.dp))
+                }
+                Spacer(Modifier.height(12.dp))
+                ThreadLength.estimate(composition).notes.forEach {
                     Text(
-                        "החישוב מבוסס על אומדן גס של כמה חוט \"מבזבז\" כל ליפוף וכל קשר כפול. " +
-                            "כשיגיעו המספרים המדויקים אחליף אותם וזה יהיה אמין הרבה יותר.",
-                        style = MaterialTheme.typography.labelSmall
+                        "• $it",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(bottom = 4.dp)
                     )
                 }
+                Spacer(Modifier.height(8.dp))
+                Aside(
+                    "החישוב מבוסס על אומדן גס של כמה חוט \"מבזבז\" כל ליפוף וכל קשר כפול. " +
+                        "כשיגיעו המספרים המדויקים אחליף אותם וזה יהיה אמין הרבה יותר."
+                )
             }
         }
     }
-}
-
-@Composable
-private fun SectionTitle(text: String) {
-    Text(text, style = MaterialTheme.typography.titleMedium)
-    Spacer(Modifier.height(8.dp))
 }

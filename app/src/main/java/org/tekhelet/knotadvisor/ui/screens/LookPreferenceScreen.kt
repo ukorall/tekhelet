@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.*
-import org.tekhelet.knotadvisor.ui.components.KnotDivider
+import org.tekhelet.knotadvisor.ui.components.GadilRule
 import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 
 /**
@@ -29,7 +29,7 @@ fun LookPreferenceScreen(
 ) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
         Text("מה יפה בעיניך?", style = MaterialTheme.typography.headlineSmall)
-        KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
+        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
         Text(
             "אמרת לי כמה חשוב לך שהקשירה תהיה יפה. עכשיו אני רוצה לדעת מה בעצם " +
                 "יפה בעיניך - כי על זה אין ויכוח, וזה שוקל אצלי יותר מכל ניחוש " +
