@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.ui.AppViewModel
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * שאלת משנה: כשלמועמדת המובילה יש כמה אורכים (7/13 כריכות) - מציגה מסך הסבר קצר.
@@ -15,18 +16,22 @@ import org.tekhelet.knotadvisor.ui.AppViewModel
  */
 @Composable
 fun WindCountTieBreakerScreen(onContinue: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text("שאלת המשך: מספר כריכות", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(16.dp))
-        Text(
-            "לפחות באחת השיטות המובילות עבורך יש כמה גרסאות אורך (למשל 7 מול 13 כריכות). " +
-                "במסך פירוט השיטה תוכלו לראות את שתי האפשרויות ולבחור ביניהן.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(modifier = Modifier.fillMaxSize().padding(horizontal = PageGutter)) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "שאלת המשך: מספר כריכות",
+            lead = "לפחות באחת השיטות המובילות אצלך יש כמה גרסאות אורך - למשל 7 מול " +
+                "13 כריכות. במסך פירוט השיטה תראה את שתי האפשרויות ותוכל לבחור ביניהן."
         )
         Spacer(Modifier.weight(1f))
-        Button(onClick = onContinue, modifier = Modifier.fillMaxWidth()) {
-            Text("הבנתי, המשך לתוצאות")
+        Button(
+            onClick = onContinue,
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth().height(52.dp)
+        ) {
+            Text("הבנתי, ממשיכים לתוצאות", style = MaterialTheme.typography.titleMedium)
         }
+        Spacer(Modifier.height(24.dp))
     }
 }
 
@@ -40,31 +45,29 @@ fun WindCountTieBreakerScreen(onContinue: () -> Unit) {
 fun VisualTieBreakerScreen(viewModel: AppViewModel, onChoiceMade: () -> Unit) {
     val topCandidates = viewModel.results.take(3)
 
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text("המועמדות קרובות מאוד - מה הכי יפה בעיניך?", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Text(
-            "לפי התשובות שלך כמה שיטות מובילות מאוד קרובות בניקוד. הבחירה החזותית שלכם כאן " +
-                "תכריע את הסדר הסופי.",
-            style = MaterialTheme.typography.bodySmall
-        )
-        Spacer(Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(topCandidates) { candidate ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        viewModel.applyVisualChoice(candidate.method.id)
-                        onChoiceMade()
-                    }
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(candidate.method.name, style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(8.dp))
-                        MethodImages(candidate.method, imageHeight = 120.dp)
-                    }
-                }
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = PageGutter),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Spacer(Modifier.height(20.dp))
+            PageHeader(
+                title = "מה הכי יפה בעיניך?",
+                kicker = "המועמדות קרובות מאוד",
+                lead = "לפי התשובות שלך כמה שיטות מובילות יצאו כמעט באותו ניקוד. " +
+                    "הבחירה החזותית שלך כאן תכריע את הסדר הסופי."
+            )
+        }
+        items(topCandidates) { candidate ->
+            Leaf(onClick = {
+                viewModel.applyVisualChoice(candidate.method.id)
+                onChoiceMade()
+            }) {
+                Text(candidate.method.name, style = MaterialTheme.typography.titleLarge)
+                Spacer(Modifier.height(10.dp))
+                MethodImages(candidate.method, imageHeight = 120.dp)
             }
         }
+        item { Spacer(Modifier.height(32.dp)) }
     }
 }
