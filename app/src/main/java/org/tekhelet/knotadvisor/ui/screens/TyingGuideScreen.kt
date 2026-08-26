@@ -157,7 +157,7 @@ fun TyingGuideScreen(
         SectionHeading("איך זה ייראה")
         Spacer(Modifier.height(14.dp))
         Leaf {
-            TzitzitVisual(composition, height = 360.dp)
+            TzitzitVisual(composition, height = 720.dp)
             Spacer(Modifier.height(12.dp))
             Aside(
                 ltr("${summary.chulyot}") + " חוליות · " +

@@ -56,8 +56,35 @@ data class KnotMethod(
     val axisScores: Map<Axis, Int>,   // 0-10 לכל ציר, ראו Axis
     /** וריאציות מקובלות על השיטה - ראו Variant.kt. */
     val variants: List<MethodVariant> = emptyList(),
+    /** "מה אפשר לעשות עם זה" - ראו PracticalOption. */
+    val practicalOptions: List<PracticalOption> = emptyList(),
     val sources: List<SourceRef> = emptyList(),
     val disqualifyingTags: List<String> = emptyList() // תגיות לסינון קשיח, למשל "invented-mix", "tosafot-based"
+)
+
+/**
+ * "מה אפשר לעשות עם זה" - האפשרויות המעשיות שנפתחות בתוך שיטה אחת.
+ *
+ * זה שונה מ-[MethodVariant]: וריאציה היא **הרכב אחר** (רמב"ם עם קשרים), ואילו
+ * כאן מדובר באותה שיטה בדיוק, רק בהחלטה מעשית שנשארה פתוחה בתוכה - כמה חוליות,
+ * איזה אורך חוט צריך בשבילה, ומה עולה או יורד בכל אפשרות.
+ *
+ * הדוגמה שהולידה את זה: הרב שמואל אריאל. האידיאל שלו הוא 13 חוליות של שלוש,
+ * אבל בפועל אי אפשר להזמין מוצר שמאפשר את זה עם שליש גדיל; ההצעה שהוא מפרסם
+ * היא ל"ט כריכות; ואפשר גם להסתפק ב-7 חוליות של שלוש, שזה פחות טוב מבחינתו
+ * אבל מותר - ומאפשר לקנות סט זול יותר. שלוש נקודות על אותו ציר, ולא שלוש
+ * שיטות.
+ */
+@Serializable
+data class PracticalOption(
+    val title: String,
+    val body: String,
+    /** דירוג עצמי של בעל השיטה, כשהוא ידוע: "האידיאל", "מה שהוא מפרסם", "אפשרי אך פחות טוב". */
+    val standing: String? = null,
+    /** האם האפשרות הזו חוסכת/מייקרת בקנייה, כשזה רלוונטי. */
+    val costNote: String? = null,
+    /** האם היא חסומה בפועל היום, ולמה. */
+    val blockedReason: String? = null
 )
 
 @Serializable

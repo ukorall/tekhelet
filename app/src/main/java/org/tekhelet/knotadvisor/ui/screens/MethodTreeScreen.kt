@@ -293,7 +293,7 @@ private fun MethodLeaf(method: KnotMethod, onClick: () -> Unit) {
                     .clip(MaterialTheme.shapes.small)
                     .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f))
             ) {
-                TzitzitVisual(method.composition, height = 190.dp, showLegend = false)
+                TzitzitVisual(method.composition, height = 380.dp, showLegend = false)
             }
         }
     }

@@ -48,7 +48,7 @@ fun CompositionBuilderScreen(viewModel: AppViewModel) {
             Column {
                 Text("איך זה ייראה", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(10.dp))
-                TzitzitVisual(c, height = 320.dp)
+                TzitzitVisual(c, height = 640.dp)
                 Spacer(Modifier.height(12.dp))
                 Text(
                     "${summary.chulyot} חוליות · ${summary.totalWinds} כריכות " +

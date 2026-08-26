@@ -40,6 +40,46 @@ fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
             Text(method.fullDescription, style = MaterialTheme.typography.bodyLarge)
         }
         item { CompositionCard(method.composition) }
+
+        if (method.practicalOptions.isNotEmpty()) {
+            item { SectionHeading("מה אפשר לעשות עם זה") }
+            item {
+                Aside(
+                    "אלה לא שיטות אחרות - זו אותה שיטה בדיוק, עם החלטה מעשית " +
+                        "שנשארה פתוחה בתוכה."
+                )
+            }
+            items(method.practicalOptions) { option ->
+                Leaf {
+                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                        Text(
+                            option.title,
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.weight(1f)
+                        )
+                        option.standing?.let { Pill(it) }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(option.body, style = MaterialTheme.typography.bodyMedium)
+                    option.costNote?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "במחיר: $it",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    option.blockedReason?.let {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            "חסום בפועל: $it",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
+        }
         if (method.editorialNote != null) {
             item {
                 Leaf(tinted = true) {
@@ -54,7 +94,7 @@ fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
                 Column(Modifier.padding(14.dp)) {
                     Text("איך זה ייראה", style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(8.dp))
-                    TzitzitVisual(method.composition, height = 260.dp)
+                    TzitzitVisual(method.composition, height = 520.dp)
                 }
             }
         }
@@ -111,7 +151,7 @@ fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
                         Spacer(Modifier.height(10.dp))
                         TzitzitVisual(
                             variant.applyTo(method.composition),
-                            height = 220.dp,
+                            height = 440.dp,
                             showLegend = false
                         )
                     }

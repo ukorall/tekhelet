@@ -134,6 +134,13 @@ def main() -> int:
                         f"{mid}/{vid}: {field}={v!r} אינו ערך חוקי של {enum_name}"
                     )
 
+        # "מה אפשר לעשות עם זה" - טקסט חופשי, אבל בלי כותרת או גוף זה מוצג ריק
+        for i, opt in enumerate(m.get("practicalOptions", [])):
+            if not opt.get("title") or not opt.get("body"):
+                problems.append(
+                    f"{mid}: practicalOptions[{i}] חסר title או body"
+                )
+
     questions = json.loads((ASSETS / "questions.json").read_text(encoding="utf-8"))["questions"]
     for q in questions:
         qid = q.get("id", "<ללא id>")

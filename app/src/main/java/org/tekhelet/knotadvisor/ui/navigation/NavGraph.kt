@@ -36,6 +36,7 @@ object Routes {
     const val BUILDER = "builder"
     const val HISTORY = "history"
     const val FEEDBACK = "feedback"
+    const val FINGERPRINT = "fingerprint"
     const val METHOD_DETAIL = "method_detail/{methodId}"
     fun methodDetail(id: String) = "method_detail/$id"
 }
@@ -58,15 +59,15 @@ private fun titleFor(route: String?): String = when {
     route == Routes.BUILDER -> "בונה ההרכב"
     route == Routes.HISTORY -> "ייעוצים קודמים"
     route == Routes.FEEDBACK -> "הערה בשבילי"
+    route == Routes.FINGERPRINT -> "טביעת אצבע"
     route.startsWith("method_detail") -> "פירוט שיטה"
     else -> "בורר קשירת תכלת"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppNavHost() {
+fun AppNavHost(viewModel: AppViewModel = viewModel()) {
     val navController = rememberNavController()
-    val viewModel: AppViewModel = viewModel()
     val backStack by navController.currentBackStackEntryAsState()
     val route = backStack?.destination?.route
     val atHome = route == null || route == Routes.HOME
@@ -118,6 +119,9 @@ fun AppNavHost() {
                     contentError = viewModel.contentError,
                     journey = viewModel.journey,
                     consultingFor = viewModel.consultingFor,
+                    mode = viewModel.mode,
+                    onSetMode = viewModel::updateMode,
+                    onOpenFingerprint = { navController.navigate(Routes.FINGERPRINT) },
                     onSelectTopic = { navController.navigate(routeForTopic(it)) },
                     onStartJourney = { viewModel.startJourney(); navController.navigate(Routes.JOURNEY) },
                     onContinueJourney = { navController.navigate(Routes.JOURNEY) },
@@ -126,6 +130,8 @@ fun AppNavHost() {
                     onSetConsultingFor = viewModel::updateConsultingFor
                 )
             }
+
+            composable(Routes.FINGERPRINT) { FingerprintScreen() }
 
             composable(Routes.JOURNEY) {
                 JourneyScreen(

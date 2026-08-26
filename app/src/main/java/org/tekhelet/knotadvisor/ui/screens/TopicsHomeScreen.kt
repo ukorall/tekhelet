@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.JourneyState
 import org.tekhelet.knotadvisor.model.Topic
 import org.tekhelet.knotadvisor.ui.components.*
+import org.tekhelet.knotadvisor.model.AppMode
 
 /**
  * מסך הפתיחה. הטון כאן מכוון: זו לא אנציקלופדיה שמכריזה על האמת, אלא שיחה
@@ -20,6 +21,9 @@ fun TopicsHomeScreen(
     contentError: String?,
     journey: JourneyState,
     consultingFor: String,
+    mode: AppMode,
+    onSetMode: (AppMode) -> Unit,
+    onOpenFingerprint: () -> Unit,
     onSelectTopic: (Topic) -> Unit,
     onStartJourney: () -> Unit,
     onContinueJourney: () -> Unit,
@@ -108,8 +112,16 @@ fun TopicsHomeScreen(
         }
 
         Spacer(Modifier.height(28.dp))
+        NavRow(
+            "טביעת אצבע",
+            "קיצור דרך למסקנה אישית סופית, בלי כל החפירות",
+            onClick = onOpenFingerprint
+        )
         NavRow("ייעוצים קודמים", onClick = onOpenHistory)
         NavRow("יש לך הערה בשבילי?", onClick = onOpenFeedback)
+
+        Spacer(Modifier.height(28.dp))
+        ModeSwitch(mode, onSetMode)
         Spacer(Modifier.height(32.dp))
     }
 }
@@ -131,4 +143,26 @@ private fun ConsultingForField(value: String, onChange: (String) -> Unit) {
         Spacer(Modifier.height(6.dp))
         Aside("אני שומר כל ייעוץ בנפרד, כדי שאפשר יהיה לחזור ולראות מה יצא למי.")
     }
+}
+
+/**
+ * מתג התאורה. שני מצבים בלבד, והבחירה מפורשת - היא לא נגזרת מהגדרת המערכת,
+ * כי "מבצעי" הוא לא "מצב לילה" אלא החלטה של המשתמש איפה הוא נמצא.
+ */
+@Composable
+private fun ModeSwitch(mode: AppMode, onSet: (AppMode) -> Unit) {
+    SectionHeading("תאורה")
+    Spacer(Modifier.height(12.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        AppMode.entries.forEach { m ->
+            FilterChip(
+                selected = m == mode,
+                onClick = { onSet(m) },
+                label = { Text(m.label) },
+                shape = MaterialTheme.shapes.small
+            )
+        }
+    }
+    Spacer(Modifier.height(8.dp))
+    Aside(mode.blurb)
 }

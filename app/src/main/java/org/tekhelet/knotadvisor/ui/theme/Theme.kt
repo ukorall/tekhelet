@@ -6,8 +6,10 @@ import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.tekhelet.knotadvisor.model.AppMode
 
 // פלטת צבעים בהשראת תכלת: כל הגוונים השולטים נעים על סקאלה אחת בין כחול ללבן,
 // בלי גוונים "זרים" לסקאלה (לא חום/קרם/אפור ניטרלי) - גם בערכת הכהה. הגוון הראשי
@@ -47,25 +49,37 @@ private val LightColors = lightColorScheme(
     outlineVariant = TekhletBlue100
 )
 
-private val DarkColors = darkColorScheme(
+/**
+ * המצב המבצעי.
+ *
+ * זו לא "ערכה כהה" גנרית: הלבן הופך לירוק זית כהה, התכלת הבהירה לירוק זית
+ * בהיר, והטקסטים ללבן. התכלת עצמה נשארת - אבל בממשק היא מוצגת בגוון בהיר יותר
+ * (TekhletBlue300), אחרת טקסט כחול כהה על זית כהה לא נקרא. גוון **החוט**
+ * נשמר במדויק ב-OperationalPalette ולא כאן. ראו Palette.kt.
+ */
+private val OperationalColors = darkColorScheme(
     primary = TekhletBlue300,
-    onPrimary = TekhletBlue900,
+    onPrimary = OliveDeep,
     primaryContainer = TekhletBlue700,
-    onPrimaryContainer = TekhletBlue50,
-    secondary = TekhletBlue100,
-    onSecondary = TekhletBlue900,
-    secondaryContainer = TekhletBlue500,
-    onSecondaryContainer = TekhletBlue50,
-    tertiary = TekhletBlue100,
-    onTertiary = TekhletBlue900,
-    background = Color(0xFF0A1830),
-    onBackground = TekhletBlue50,
-    surface = Color(0xFF0F2140),
-    onSurface = TekhletBlue50,
-    surfaceVariant = TekhletBlue700,
-    onSurfaceVariant = TekhletBlue100,
-    outline = TekhletBlue500,
-    outlineVariant = Color(0xFF23406B)
+    onPrimaryContainer = OliveText,
+    secondary = OliveLight,
+    onSecondary = OliveDeep,
+    secondaryContainer = OliveDark,
+    onSecondaryContainer = OliveText,
+    tertiary = OliveLight,
+    onTertiary = OliveDeep,
+    tertiaryContainer = OliveDark,
+    onTertiaryContainer = OliveText,
+    background = OliveDeep,
+    onBackground = OliveText,
+    surface = OliveSurface,
+    onSurface = OliveText,
+    surfaceVariant = OliveDark,
+    onSurfaceVariant = OliveLight,
+    outline = OliveMid,
+    outlineVariant = OliveDark,
+    error = Color(0xFFE08A8A),
+    onError = OliveDeep
 )
 
 /**
@@ -85,11 +99,16 @@ private val KnotShapes = Shapes(
 )
 
 @Composable
-fun KnotAdvisorTheme(useDarkTheme: Boolean = false, content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (useDarkTheme) DarkColors else LightColors,
-        shapes = KnotShapes,
-        typography = HebrewTypography,
-        content = content
-    )
+fun KnotAdvisorTheme(mode: AppMode = AppMode.ADMIN, content: @Composable () -> Unit) {
+    val operational = mode == AppMode.OPERATIONAL
+    CompositionLocalProvider(
+        LocalTekheletPalette provides if (operational) OperationalPalette else AdminPalette
+    ) {
+        MaterialTheme(
+            colorScheme = if (operational) OperationalColors else LightColors,
+            shapes = KnotShapes,
+            typography = HebrewTypography,
+            content = content
+        )
+    }
 }

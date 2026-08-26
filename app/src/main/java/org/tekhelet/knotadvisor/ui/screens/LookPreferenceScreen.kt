@@ -67,7 +67,7 @@ fun LookPreferenceScreen(
                     Box(Modifier.width(96.dp)) {
                         TzitzitVisual(
                             composition = sampleFor(option),
-                            height = 170.dp,
+                            height = 340.dp,
                             showLegend = false
                         )
                     }

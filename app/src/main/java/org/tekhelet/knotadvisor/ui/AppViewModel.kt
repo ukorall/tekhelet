@@ -14,6 +14,7 @@ import org.tekhelet.knotadvisor.data.ContentRepository
 import org.tekhelet.knotadvisor.data.FeedbackStore
 import org.tekhelet.knotadvisor.data.HistoryStore
 import org.tekhelet.knotadvisor.data.SessionStore
+import org.tekhelet.knotadvisor.model.AppMode
 import org.tekhelet.knotadvisor.logic.ScoringEngine
 import org.tekhelet.knotadvisor.model.*
 import java.util.UUID
@@ -47,6 +48,9 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     var showVisualTieBreaker by mutableStateOf(false); private set
 
     var consultingFor by mutableStateOf(""); private set
+
+    /** מצב התאורה - מנהלתי או מבצעי. נשמר בין הפעלות. */
+    var mode by mutableStateOf(AppMode.ADMIN); private set
     var journey by mutableStateOf(JourneyState()); private set
 
     /** ההרכב שהמשתמש בונה ידנית בבונה ההרכב האישי. */
@@ -76,6 +80,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             journey = sessionStore.journey.first()
             consultingFor = sessionStore.consultingFor.first()
+            mode = sessionStore.mode.first()
         }
     }
 
@@ -115,6 +120,16 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     fun updateConsultingFor(name: String) {
         consultingFor = name
         viewModelScope.launch { sessionStore.saveConsultingFor(name) }
+    }
+
+    /**
+     * שם הפונקציה הוא `updateMode` ולא `setMode` בכוונה: `mode` היא `var`,
+     * וקוטלין כבר מייצרת לה `setMode(AppMode)` - חתימת JVM זהה. אותה מלכודת
+     * בדיוק כבר הפילה כאן בנייה פעם אחת עם `setConsultingFor`.
+     */
+    fun updateMode(next: AppMode) {
+        mode = next
+        viewModelScope.launch { sessionStore.saveMode(next) }
     }
 
     fun saveFinalChoice(methodId: String) {

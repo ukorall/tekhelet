@@ -7,6 +7,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tekhelet.knotadvisor.logic.GadilBuilder
+import org.tekhelet.knotadvisor.logic.FreeformGadil
 import org.tekhelet.knotadvisor.logic.Products
 import org.tekhelet.knotadvisor.logic.ScoringEngine
 import org.tekhelet.knotadvisor.logic.ThreadLength
@@ -261,6 +262,74 @@ class ContentLoadingTest {
         Products.lishmah.forEach {
             assertTrue("${it.name}: מחיר לא הגיוני", it.price in 50..2000)
         }
+    }
+
+    /**
+     * הרב אריאל: ל"ט כריכות, כמניין "הויה אחד" - לא ארבעים.
+     * החלוקה היא 5,5,5,6,6,6,6. הטעות הקודמת (החוליה השלישית כ-6) נתנה 40,
+     * ואוריאל תפס אותה על המכשיר.
+     */
+    @Test
+    fun `rav ariel has thirty nine winds`() {
+        val m = methods.first { it.id == "rav-ariel" }
+        assertEquals(
+            "חלוקת הכריכות של הרב אריאל",
+            listOf(5, 5, 5, 6, 6, 6, 6),
+            m.composition.windGroups
+        )
+        assertEquals("סה\"כ כריכות", 39, GadilBuilder.plan(m.composition).totalWinds)
+        assertEquals("מספר חוליות", 7, GadilBuilder.plan(m.composition).chulyot)
+    }
+
+    /**
+     * "מה אפשר לעשות עם זה" חייב להיות שמיש: אפשרות בלי כותרת או גוף מוצגת
+     * ככרטיס ריק.
+     */
+    @Test
+    fun `practical options are complete where they exist`() {
+        methods.forEach { m ->
+            m.practicalOptions.forEach { o ->
+                assertTrue("${m.id}: אפשרות מעשית בלי כותרת", o.title.isNotBlank())
+                assertTrue("${m.id}/${o.title}: אפשרות מעשית בלי גוף", o.body.isNotBlank())
+            }
+        }
+        val ariel = methods.first { it.id == "rav-ariel" }
+        assertTrue("להרב אריאל צריכות להיות אפשרויות מעשיות", ariel.practicalOptions.size >= 3)
+        assertTrue(
+            "אחת האפשרויות צריכה להיות חסומה בפועל (13 חוליות של שלוש)",
+            ariel.practicalOptions.any { it.blockedReason != null }
+        )
+        assertTrue(
+            "אחת האפשרויות צריכה לחסוך בקנייה (7 חוליות)",
+            ariel.practicalOptions.any { it.costNote != null }
+        )
+    }
+
+    /**
+     * טביעת האצבע חייבת להיות **דטרמיניסטית**: אותן תשובות, אותו גדיל. בלי זה
+     * זו לא טביעת אצבע אלא כפתור "הפתע אותי".
+     */
+    @Test
+    fun `fingerprint is deterministic for the same answers`() {
+        val answers = listOf("כן", "כוח טענה", "שחור", "17", "העדפתי שש")
+        val seed = FreeformGadil.seedFrom(answers)
+        assertEquals(
+            "אותן תשובות נתנו גדיל אחר",
+            FreeformGadil.generate(seed, 11),
+            FreeformGadil.generate(seed, 11)
+        )
+        val other = FreeformGadil.seedFrom(answers.dropLast(1) + "כן")
+        assertTrue("תשובה שונה נתנה בדיוק אותו זרע", other != seed)
+    }
+
+    @Test
+    fun `every fingerprint segment kind can be generated`() {
+        // כל ערך חייב להיות בר-הגרלה, אחרת יש מקטע שאי אפשר להגיע אליו בכלל
+        val produced = (0 until 400)
+            .flatMap { FreeformGadil.generate(it, 12) }
+            .toSet()
+        val missing = FreeformGadil.SegmentKind.entries.toSet() - produced
+        assertTrue("מקטעים שלא הוגרלו אף פעם: $missing", missing.isEmpty())
     }
 
     @Test
