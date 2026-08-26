@@ -13,7 +13,16 @@ package org.tekhelet.knotadvisor.model
  * המאגר מחולק לשלושה טעמים בכוונה - ישיבתי, רנדומלי, ונונסנס טהור - וכל הרצה
  * מגרילה מכולם.
  */
-enum class FpKind { CHOICE, YES_NO, SHORT_TEXT }
+enum class FpKind {
+    CHOICE,
+    YES_NO,
+    SHORT_TEXT,
+    /**
+     * שאלה שאין בה מקום לתשובה. "תבחר מספר ואל תגלה לי" - אם יש שדה, הבדיחה
+     * מתה. היא נחשבת כענויה מרגע שהיא מוצגת, ותורמת לזרע ערך קבוע.
+     */
+    SECRET
+}
 
 data class FpQuestion(
     val id: String,
@@ -29,6 +38,7 @@ object FingerprintQuestions {
 
     private fun yesNo(id: String, text: String) = FpQuestion(id, text, FpKind.YES_NO)
     private fun open(id: String, text: String) = FpQuestion(id, text, FpKind.SHORT_TEXT)
+    private fun secret(id: String, text: String) = FpQuestion(id, text, FpKind.SECRET)
 
     /** ישיבתי. */
     val beitMidrash = listOf(
@@ -40,7 +50,7 @@ object FingerprintQuestions {
         open("y_mango", "מה מברכים על מנגו?"),
         choice(
             "y_seder", "איזה סדר הכי אהוב עליך?",
-            "זרעים", "מועד", "נשים", "נזיקין", "קדשים", "טהרות"
+            "זרעים", "פסח", "נשים", "נזיקין", "קדשים", "טהרות"
         ),
         choice(
             "y_chavruta", "חברותא מדברת יותר מדי. מה עושים?",
@@ -49,7 +59,7 @@ object FingerprintQuestions {
         yesNo("y_tosafot", "אתה קורא את התוספות לפני הגמרא?"),
         choice(
             "y_shiur", "כזית - לפי מי?",
-            "החזון איש", "הרב חיים נאה", "מה שיש בצלחת", "לא נכנסתי לזה"
+            "החזון איש", "הרב חיים נאה", "כמו זית", "מה שיש בצלחת", "לא נכנסתי לזה"
         ),
         open("y_kasha", "תגיד קושיה אחת שאתה עדיין חייב עליה תשובה")
     )
@@ -74,7 +84,7 @@ object FingerprintQuestions {
 
     /** נונסנס טהור. אין כאן שום ניסיון להסיק משהו. */
     val nonsense = listOf(
-        open("n_number", "תבחר מספר ואל תגלה לי"),
+        secret("n_number", "תבחר מספר ואל תגלה לי"),
         open("n_animal", "אם היית חיה, איזה צבע היית אוהב לאכול?"),
         choice(
             "n_door", "דלת או חלון?",

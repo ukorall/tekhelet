@@ -3,10 +3,15 @@ package org.tekhelet.knotadvisor.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import org.tekhelet.knotadvisor.R
 import org.tekhelet.knotadvisor.model.JourneyState
 import org.tekhelet.knotadvisor.model.Topic
 import org.tekhelet.knotadvisor.ui.components.*
@@ -38,10 +43,23 @@ fun TopicsHomeScreen(
             .padding(horizontal = PageGutter)
     ) {
         Spacer(Modifier.height(20.dp))
-        PageHeader(
-            title = "בורר קשירת תכלת",
-            kicker = "ברכותיי! אתה בדרך אל האור."
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // הלוגו מוצג עם הרקע התכול שלו, כאריח - כך הוא נשאר קריא גם במצב
+            // המבצעי, שבו נייבי על זית כהה היה נעלם.
+            Image(
+                painter = painterResource(R.drawable.logo),
+                contentDescription = "הלוגו של תכלת קורל",
+                modifier = Modifier
+                    .size(66.dp)
+                    .clip(MaterialTheme.shapes.medium)
+            )
+            Spacer(Modifier.width(14.dp))
+            PageHeader(
+                title = "תכלת קורל",
+                kicker = "ברכותיי! אתה בדרך אל האור.",
+                modifier = Modifier.weight(1f)
+            )
+        }
         Spacer(Modifier.height(16.dp))
         GadilRule()
         Spacer(Modifier.height(20.dp))
@@ -145,10 +163,7 @@ private fun ConsultingForField(value: String, onChange: (String) -> Unit) {
     }
 }
 
-/**
- * מתג התאורה. שני מצבים בלבד, והבחירה מפורשת - היא לא נגזרת מהגדרת המערכת,
- * כי "מבצעי" הוא לא "מצב לילה" אלא החלטה של המשתמש איפה הוא נמצא.
- */
+/** מתג התאורה. שני מצבים, והבחירה נשמרת בין הפעלות. */
 @Composable
 private fun ModeSwitch(mode: AppMode, onSet: (AppMode) -> Unit) {
     SectionHeading("תאורה")

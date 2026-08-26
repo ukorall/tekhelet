@@ -8,6 +8,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.tekhelet.knotadvisor.logic.GadilBuilder
 import org.tekhelet.knotadvisor.logic.FreeformGadil
+import org.tekhelet.knotadvisor.model.FingerprintQuestions
+import org.tekhelet.knotadvisor.model.FpKind
 import org.tekhelet.knotadvisor.logic.Products
 import org.tekhelet.knotadvisor.logic.ScoringEngine
 import org.tekhelet.knotadvisor.logic.ThreadLength
@@ -330,6 +332,31 @@ class ContentLoadingTest {
             .toSet()
         val missing = FreeformGadil.SegmentKind.entries.toSet() - produced
         assertTrue("מקטעים שלא הוגרלו אף פעם: $missing", missing.isEmpty())
+    }
+
+    /**
+     * מאגר טביעת האצבע: שאלת בחירה בלי אפשרויות מציגה כלום, ושאלת "סוד" עם
+     * אפשרויות שוברת את הבדיחה - אם יש איפה לענות, זה כבר לא סוד.
+     */
+    @Test
+    fun `fingerprint question pool is well formed`() {
+        val all = FingerprintQuestions.beitMidrash +
+            FingerprintQuestions.personal +
+            FingerprintQuestions.nonsense
+        assertEquals("id כפול במאגר", all.size, all.map { it.id }.toSet().size)
+        all.forEach { q ->
+            assertTrue("${q.id}: שאלה בלי טקסט", q.text.isNotBlank())
+            when (q.kind) {
+                FpKind.CHOICE ->
+                    assertTrue("${q.id}: שאלת בחירה עם פחות משתי אפשרויות", q.options.size >= 2)
+                FpKind.SECRET, FpKind.YES_NO, FpKind.SHORT_TEXT ->
+                    assertTrue("${q.id}: ${q.kind} לא אמורה לשאת אפשרויות", q.options.isEmpty())
+            }
+        }
+        // חמש שאלות בכל הגרלה, ותמיד מכל שלושת הטעמים
+        repeat(20) { seed ->
+            assertEquals(5, FingerprintQuestions.draw(kotlin.random.Random(seed)).size)
+        }
     }
 
     @Test

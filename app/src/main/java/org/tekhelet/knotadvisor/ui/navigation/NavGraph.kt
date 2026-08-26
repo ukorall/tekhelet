@@ -42,7 +42,7 @@ object Routes {
 }
 
 private fun titleFor(route: String?): String = when {
-    route == null || route == Routes.HOME -> "בורר קשירת תכלת"
+    route == null || route == Routes.HOME -> "תכלת קורל"
     route == Routes.JOURNEY -> "המסע"
     route == Routes.WHETHER -> Topic.WHETHER.title
     route == Routes.HOW_MANY -> Topic.HOW_MANY.title
@@ -61,7 +61,7 @@ private fun titleFor(route: String?): String = when {
     route == Routes.FEEDBACK -> "הערה בשבילי"
     route == Routes.FINGERPRINT -> "טביעת אצבע"
     route.startsWith("method_detail") -> "פירוט שיטה"
-    else -> "בורר קשירת תכלת"
+    else -> "תכלת קורל"
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

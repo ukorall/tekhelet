@@ -33,7 +33,10 @@ fun FingerprintScreen() {
     var segments by remember { mutableStateOf<List<SegmentKind>>(emptyList()) }
 
     fun reveal() {
-        val seed = FreeformGadil.seedFrom(questions.map { answers[it.id].orEmpty() })
+        // שאלת ה"סוד" תורמת ערך קבוע - לא גילית, אז אין מה לקחת ממנה
+        val seed = FreeformGadil.seedFrom(
+            questions.map { if (it.kind == FpKind.SECRET) "סוד" else answers[it.id].orEmpty() }
+        )
         val count = 7 + (kotlin.math.abs(seed) % 7)   // בין 7 ל-13 איברים
         segments = FreeformGadil.generate(seed, count)
         revealed = true
@@ -47,13 +50,21 @@ fun FingerprintScreen() {
             Spacer(Modifier.height(20.dp))
             PageHeader(
                 title = "טביעת אצבע",
-                kicker = "קיצור דרך למסקנה אישית סופית",
-                lead = "בלי כל החפירות. חמש שאלות, וגדיל."
+                kicker = "קיצור דרך למסקנה אישית סופית, בלי כל החפירות"
+            )
+            Spacer(Modifier.height(16.dp))
+            Text(
+                "את ארגון פתיל תכלת הקימו ארבעה קוקואים שגרים באפרת, ולשלושה מהם " +
+                    "קוראים ברוך. אחד הברוכים אמר פעם ש\"החותמת והפתילים\" מתאר " +
+                    "מציאות שלכל אחד יש קשירה משל עצמו, ואפשר להשתמש בפתילים בתור " +
+                    "חותמת ייחודית.",
+                style = MaterialTheme.typography.bodyLarge
             )
             Spacer(Modifier.height(12.dp))
-            Aside(
-                "נאמר את המובן מאליו: לשאלות כאן אין שום קשר לתכלת, והגדיל שייצא " +
-                    "לא מבוסס על כלום. אם אתה רוצה תשובה אמיתית - זה נמצא ב\"איך לקשור\"."
+            Text(
+                "זה וורט יפה שלא מבוסס על שום דבר, אבל החלטתי לזרום. בוא תמצא את " +
+                    "הקשירה היותר פנים-פנימית ניש-נישמתית שמבטאת את האני האמיתי שלך.",
+                style = MaterialTheme.typography.bodyLarge
             )
         }
 
@@ -65,14 +76,16 @@ fun FingerprintScreen() {
                 Spacer(Modifier.height(8.dp))
                 Button(
                     onClick = { reveal() },
-                    enabled = questions.all { !answers[it.id].isNullOrBlank() },
+                    enabled = questions.all {
+                        it.kind == FpKind.SECRET || !answers[it.id].isNullOrBlank()
+                    },
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier.fillMaxWidth().height(52.dp)
                 ) {
                     Text("תראה לי מה יצא", style = MaterialTheme.typography.titleMedium)
                 }
                 Spacer(Modifier.height(8.dp))
-                Aside("צריך לענות על כל החמש. גם על זו עם הסולם.")
+                Aside("צריך לענות על כל השאלות שיש בהן על מה לענות.")
             }
         } else {
             item {
@@ -105,7 +118,7 @@ fun FingerprintScreen() {
                 Spacer(Modifier.height(10.dp))
                 SectionHeading("מה יש בכל מקטע")
                 Spacer(Modifier.height(4.dp))
-                Aside("כולל דברים שאין להם שום משמעות. זה מכוון.")
+                Aside("רשימה אחת. כולל דברים שאין להם שום משמעות - זה מכוון.")
             }
             itemsIndexed(segments) { index, kind ->
                 SegmentPicker(index, kind) { chosen ->
@@ -141,7 +154,7 @@ private fun QuestionLeaf(
             Spacer(Modifier.width(10.dp))
             Text(q.text, style = MaterialTheme.typography.titleMedium)
         }
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
         when (q.kind) {
             FpKind.SHORT_TEXT -> OutlinedTextField(
                 value = answer.orEmpty(),
@@ -153,6 +166,8 @@ private fun QuestionLeaf(
             )
             FpKind.YES_NO -> ChoiceRow(listOf("כן", "לא"), answer, onAnswer)
             FpKind.CHOICE -> ChoiceRow(q.options, answer, onAnswer)
+            // בלי שדה. אם יש איפה להקליד, הבדיחה מתה.
+            FpKind.SECRET -> Aside("יופי. אל תגלה.")
         }
     }
 }
@@ -205,33 +220,23 @@ private fun SegmentPicker(index: Int, kind: SegmentKind, onPick: (SegmentKind) -
         ) {
             Pill(ltr("${index + 1}"))
             Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text(kind.label, style = MaterialTheme.typography.bodyLarge)
-                Aside(kind.group.label)
-            }
+            Text(
+                kind.label,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
+            )
             Box {
                 OutlinedButton(onClick = { open = true }, shape = MaterialTheme.shapes.small) {
                     Text("החלף")
                 }
+                // רשימה אחת רצופה, בלי חלוקה לקטגוריות: מי שמחפש משהו מסוים
+                // סורק את השמות, והכותרות רק הוסיפו עצירות באמצע.
                 DropdownMenu(expanded = open, onDismissRequest = { open = false }) {
-                    FreeformGadil.SegmentGroup.entries.forEach { group ->
+                    SegmentKind.entries.forEach { k ->
                         DropdownMenuItem(
-                            text = {
-                                Text(
-                                    group.label,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.secondary
-                                )
-                            },
-                            onClick = {},
-                            enabled = false
+                            text = { Text(k.label) },
+                            onClick = { onPick(k); open = false }
                         )
-                        SegmentKind.entries.filter { it.group == group }.forEach { k ->
-                            DropdownMenuItem(
-                                text = { Text(k.label) },
-                                onClick = { onPick(k); open = false }
-                            )
-                        }
                     }
                 }
             }

@@ -23,8 +23,7 @@ class MainActivity : ComponentActivity() {
             // שהטלפון שלו מוגדר באנגלית - וזה המצב אצל לא מעט אנשים.
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 // ה-ViewModel נוצר כאן ולא בתוך AppNavHost, כי מצב התאורה שמור בו
-                // והתמה צריכה לקרוא אותו. מצב התאורה הוא בחירה מפורשת של המשתמש
-                // ולא נגזר מהגדרת המערכת - "מבצעי" הוא לא "מצב לילה".
+                // והתמה צריכה לקרוא אותו.
                 val viewModel: AppViewModel = viewModel()
                 KnotAdvisorTheme(mode = viewModel.mode) {
                     Surface(modifier = Modifier.fillMaxSize()) {

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      הרקע של האייקון האדפטיבי. נדגם מהלוגו עצמו, כדי שהריבוע שמאחורי הקשר
+      יהיה בדיוק אותו תכול ולא גוון "קרוב".
+    -->
+    <color name="ic_launcher_background">#CAEBFE</color>
+</resources>

@@ -82,10 +82,6 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
     val gadilW = (size.width * 0.30f).coerceAtMost(150f)
     val clothH = (size.height * 0.045f).coerceAtMost(26f)
 
-    // קו מתאר מצויר רק סביב חוט הלבן. סביב התכלת הוא מלכלך את הגוון.
-    fun outlineFor(c: Color): Color? =
-        if (c == palette.threadTekhelet) null else palette.threadOutline.copy(alpha = 0.5f)
-
     drawRoundRect(
         color = palette.gadilBackdrop,
         topLeft = Offset(cx - gadilW * 0.78f, clothH),
@@ -108,6 +104,8 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
             GadilBuilder.Element.SmallGap -> GadilMetrics.SMALL_GAP_UNITS
         }
     }
+    // רווח בסיס בין כל שני אלמנטים, בנוסף להיכר החוליות עצמו
+    units += GadilMetrics.ELEMENT_GAP_UNITS * (plan.elements.size - 1).coerceAtLeast(0)
     if (units <= 0f) return
 
     val gadilH = size.height * 0.70f
@@ -117,7 +115,7 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
 
     drawCoreThreads(cx, clothH, clothH + gadilH + 6f, gadilW, palette.coreThread)
 
-    plan.elements.forEach { el ->
+    plan.elements.forEachIndexed { i, el ->
         when (el) {
             is GadilBuilder.Element.Winds -> {
                 val h = u * el.piece.length
@@ -127,13 +125,12 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
                     ChulyaForm.YEMENITE_SELF_HOLDING -> drawYemenite(
                         cx, y, gadilW, h, el.piece.length,
                         colours = List(el.piece.length) { colour },
-                        threadW = threadW,
-                        outlineFor = { c -> outlineFor(c) }
+                        threadW = threadW
                     )
                     ChulyaForm.YEMENITE_INVERTED ->
-                        drawInvertedYemenite(cx, y, gadilW, h, el.piece.length, colour, threadW, outlineFor(colour))
+                        drawInvertedYemenite(cx, y, gadilW, h, el.piece.length, colour, threadW)
                     else ->
-                        drawPlainWinds(cx, y, gadilW, h, el.piece.length, colour, threadW, outlineFor(colour))
+                        drawPlainWinds(cx, y, gadilW, h, el.piece.length, colour, threadW)
                 }
                 y += h
             }
@@ -141,14 +138,14 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
                 val h = u * GadilMetrics.KNOT_UNITS
                 drawDoubleKnot(
                     cx, y, gadilW, h, threadW,
-                    palette.threadTekhelet, palette.threadWhite,
-                    palette.threadOutline.copy(alpha = 0.5f)
+                    palette.threadTekhelet, palette.threadWhite
                 )
                 y += h
             }
             GadilBuilder.Element.ChulyaGap -> y += u * GadilMetrics.CHULYA_GAP_UNITS
             GadilBuilder.Element.SmallGap -> y += u * GadilMetrics.SMALL_GAP_UNITS
         }
+        if (i < plan.elements.lastIndex) y += u * GadilMetrics.ELEMENT_GAP_UNITS
     }
 
     // הענף
@@ -163,13 +160,11 @@ private fun DrawScope.drawGadil(plan: GadilBuilder.Plan, palette: TekheletPalett
             strokeWidth = 3f,
             cap = StrokeCap.Round
         )
-        outlineFor(colour)?.let {
-            drawLine(
-                color = it.copy(alpha = 0.3f),
-                start = Offset(cx + t * gadilW * 0.7f, strandTop),
-                end = Offset(cx + t * size.width * 0.5f, size.height),
-                strokeWidth = 0.7f, cap = StrokeCap.Round
-            )
-        }
+        drawLine(
+            color = edgeOf(colour),
+            start = Offset(cx + t * gadilW * 0.7f, strandTop),
+            end = Offset(cx + t * size.width * 0.5f, size.height),
+            strokeWidth = 0.7f, cap = StrokeCap.Round
+        )
     }
 }

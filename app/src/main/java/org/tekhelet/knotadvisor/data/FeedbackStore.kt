@@ -44,7 +44,7 @@ class FeedbackStore(private val context: Context) {
         return Intent(Intent.ACTION_SEND).apply {
             type = "application/json"
             putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, "פידבק על בורר קשירת תכלת")
+            putExtra(Intent.EXTRA_SUBJECT, "פידבק על תכלת קורל")
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }

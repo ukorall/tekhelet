@@ -30,32 +30,55 @@ object GadilMetrics {
     const val CHULYA_GAP_UNITS = 2.4f
     /** רווח קטן בין חוליה לחוליה. */
     const val SMALL_GAP_UNITS = 0.8f
-    /** עובי החוט ביחס לגובה יחידת כריכה. */
-    const val THREAD_RATIO = 0.82f
+
+    /**
+     * רווח בסיס בין **כל שני אלמנטים**, בלי קשר לשאלה איזה היכר חוליות נעשה שם.
+     *
+     * זה נפרד מ-[SMALL_GAP_UNITS] ומ-[CHULYA_GAP_UNITS]: אלה מייצגים החלטה
+     * הלכתית (איך מפרידים בין חוליה לחוליה), וזה כאן הוא סתם אוויר בציור, כדי
+     * שאפשר יהיה לספור בעין. חוליה שנוגעת בקשר שאחריה נראית כמו גוש אחד.
+     */
+    const val ELEMENT_GAP_UNITS = 0.35f
+
+    /**
+     * עובי החוט ביחס לגובה יחידת כריכה. ירד ב-15% מ-0.82, כי בעובי הקודם
+     * הכריכות כמעט נגעו זו בזו והגדיל נראה כמו גוש רציף.
+     */
+    const val THREAD_RATIO = 0.70f
 }
+
+/**
+ * קו המתאר של חוט: הגוון של החוט עצמו, כהה יותר.
+ *
+ * נגזר מהצבע ולא נלקח מהפלטה, כדי שגם חוט אדום או כתום בטביעת האצבע יקבל
+ * מתאר שנצמד אליו במקום קו כחלחל שנראה כמו הערה. הוא מצויר תמיד, גם סביב
+ * התכלת, ובעובי המינימלי האפשרי - [Stroke.HairlineWidth] הוא פיקסל אחד
+ * במסך, בלי קשר לצפיפות.
+ */
+fun edgeOf(c: Color): Color = Color(c.red * 0.5f, c.green * 0.5f, c.blue * 0.5f, 0.9f)
+
+private val Hairline get() = Stroke(width = Stroke.HairlineWidth)
+
+/** רדיוס פינה לכריכה: חצי מעובי החוט, כך שהקצה מעוגל כמו חוט אמיתי. */
+private fun corner(threadW: Float) = CornerRadius(threadW * 0.5f, threadW * 0.5f)
 
 /** כריכה אחת: מלבן אופקי לרוחב הגדיל. */
 fun DrawScope.drawWindBar(
-    cx: Float, top: Float, w: Float, thickness: Float,
-    colour: Color, outline: Color?
+    cx: Float, top: Float, w: Float, thickness: Float, colour: Color
 ) {
-    drawRoundRect(colour, Offset(cx - w / 2f, top), Size(w, thickness), CornerRadius(2.5f, 2.5f))
-    outline?.let {
-        drawRoundRect(
-            it, Offset(cx - w / 2f, top), Size(w, thickness),
-            CornerRadius(2.5f, 2.5f), style = Stroke(width = 1f)
-        )
-    }
+    val r = corner(thickness)
+    drawRoundRect(colour, Offset(cx - w / 2f, top), Size(w, thickness), r)
+    drawRoundRect(edgeOf(colour), Offset(cx - w / 2f, top), Size(w, thickness), r, style = Hairline)
 }
 
 /** כריכות פשוטות, כולן באותו צבע. */
 fun DrawScope.drawPlainWinds(
     cx: Float, y: Float, w: Float, h: Float, count: Int,
-    colour: Color, threadW: Float, outline: Color?
+    colour: Color, threadW: Float
 ) {
     val each = h / count
     repeat(count) { k ->
-        drawWindBar(cx, y + each * k + (each - threadW) / 2f, w, threadW, colour, outline)
+        drawWindBar(cx, y + each * k + (each - threadW) / 2f, w, threadW, colour)
     }
 }
 
@@ -67,19 +90,15 @@ fun DrawScope.drawPlainWinds(
  */
 fun DrawScope.drawSplitWinds(
     cx: Float, y: Float, w: Float, h: Float, count: Int,
-    left: Color, right: Color, threadW: Float, outline: Color?
+    left: Color, right: Color, threadW: Float
 ) {
     val each = h / count
+    val r = corner(threadW)
     repeat(count) { k ->
         val top = y + each * k + (each - threadW) / 2f
-        drawRoundRect(left, Offset(cx - w / 2f, top), Size(w / 2f, threadW), CornerRadius(2.5f, 2.5f))
-        drawRoundRect(right, Offset(cx, top), Size(w / 2f, threadW), CornerRadius(2.5f, 2.5f))
-        outline?.let {
-            drawRoundRect(
-                it, Offset(cx - w / 2f, top), Size(w, threadW),
-                CornerRadius(2.5f, 2.5f), style = Stroke(width = 1f)
-            )
-        }
+        drawRoundRect(left, Offset(cx - w / 2f, top), Size(w / 2f, threadW), r)
+        drawRoundRect(right, Offset(cx, top), Size(w / 2f, threadW), r)
+        drawRoundRect(edgeOf(left), Offset(cx - w / 2f, top), Size(w, threadW), r, style = Hairline)
     }
 }
 
@@ -92,38 +111,24 @@ fun DrawScope.drawSplitWinds(
  */
 fun DrawScope.drawYemenite(
     cx: Float, y: Float, w: Float, h: Float, count: Int,
-    colours: List<Color>, threadW: Float, outlineFor: (Color) -> Color?
+    colours: List<Color>, threadW: Float
 ) {
     val half = w / 2f
     val unit = h / count
+    val r = corner(threadW)
     fun colourAt(i: Int) = colours.getOrElse(i) { colours.lastOrNull() ?: Color.Gray }
 
     fun edge(top: Float, right: Boolean, colour: Color) {
         val x = if (right) cx else cx - half
-        drawRoundRect(colour, Offset(x, top), Size(half, threadW), CornerRadius(2f, 2f))
-        outlineFor(colour)?.let {
-            drawRoundRect(
-                it, Offset(x, top), Size(half, threadW),
-                CornerRadius(2f, 2f), style = Stroke(width = 1f)
-            )
-        }
+        drawRoundRect(colour, Offset(x, top), Size(half, threadW), r)
+        drawRoundRect(edgeOf(colour), Offset(x, top), Size(half, threadW), r, style = Hairline)
     }
 
     fun diagonal(top: Float, span: Float, colour: Color) {
-        drawLine(
-            colour,
-            Offset(cx - half * 0.9f, top),
-            Offset(cx + half * 0.9f, top + span),
-            strokeWidth = threadW, cap = StrokeCap.Round
-        )
-        outlineFor(colour)?.let {
-            drawLine(
-                it,
-                Offset(cx - half * 0.9f, top),
-                Offset(cx + half * 0.9f, top + span),
-                strokeWidth = threadW * 0.16f, cap = StrokeCap.Round
-            )
-        }
+        val a = Offset(cx - half * 0.9f, top)
+        val b = Offset(cx + half * 0.9f, top + span)
+        drawLine(colour, a, b, strokeWidth = threadW, cap = StrokeCap.Round)
+        drawLine(edgeOf(colour), a, b, strokeWidth = threadW * 0.12f, cap = StrokeCap.Round)
     }
 
     when {
@@ -144,24 +149,13 @@ fun DrawScope.drawYemenite(
 /** חוליה תימנית הפוכה: הכריכות, ומעליהן אלכסון בכיוון ההפוך - בצבע החוליה. */
 fun DrawScope.drawInvertedYemenite(
     cx: Float, y: Float, w: Float, h: Float, count: Int,
-    colour: Color, threadW: Float, outline: Color?
+    colour: Color, threadW: Float
 ) {
-    drawPlainWinds(cx, y, w, h, count, colour, threadW, outline)
-    drawLine(
-        color = colour,
-        start = Offset(cx - w * 0.44f, y + h * 0.88f),
-        end = Offset(cx + w * 0.44f, y + h * 0.12f),
-        strokeWidth = threadW,
-        cap = StrokeCap.Round
-    )
-    outline?.let {
-        drawLine(
-            it,
-            Offset(cx - w * 0.44f, y + h * 0.88f),
-            Offset(cx + w * 0.44f, y + h * 0.12f),
-            strokeWidth = threadW * 0.16f, cap = StrokeCap.Round
-        )
-    }
+    drawPlainWinds(cx, y, w, h, count, colour, threadW)
+    val a = Offset(cx - w * 0.44f, y + h * 0.88f)
+    val b = Offset(cx + w * 0.44f, y + h * 0.12f)
+    drawLine(colour, a, b, strokeWidth = threadW, cap = StrokeCap.Round)
+    drawLine(edgeOf(colour), a, b, strokeWidth = threadW * 0.12f, cap = StrokeCap.Round)
 }
 
 /**
@@ -171,7 +165,7 @@ fun DrawScope.drawInvertedYemenite(
  */
 fun DrawScope.drawDoubleKnot(
     cx: Float, y: Float, w: Float, h: Float, threadW: Float,
-    tekhelet: Color, white: Color, outline: Color?
+    tekhelet: Color, white: Color
 ) {
     val half = w * 0.46f
     val each = h * 0.62f            // גדול מ-h/2, ולכן האיקסים חופפים מעט
@@ -184,19 +178,11 @@ fun DrawScope.drawDoubleKnot(
             Offset(cx - half, top) to Offset(cx + half, bot),
             Offset(cx + half, top) to Offset(cx - half, bot)
         ).forEach { (a, b) ->
-            drawLine(
-                tekhelet, Offset(a.x, a.y - gap), Offset(b.x, b.y - gap),
-                strokeWidth = threadW, cap = StrokeCap.Round
-            )
-            drawLine(
-                white, Offset(a.x, a.y + gap), Offset(b.x, b.y + gap),
-                strokeWidth = threadW, cap = StrokeCap.Round
-            )
-            outline?.let {
-                drawLine(
-                    it, Offset(a.x, a.y + gap), Offset(b.x, b.y + gap),
-                    strokeWidth = threadW * 0.16f, cap = StrokeCap.Round
-                )
+            listOf(tekhelet to -gap, white to gap).forEach { (colour, dy) ->
+                val p1 = Offset(a.x, a.y + dy)
+                val p2 = Offset(b.x, b.y + dy)
+                drawLine(colour, p1, p2, strokeWidth = threadW, cap = StrokeCap.Round)
+                drawLine(edgeOf(colour), p1, p2, strokeWidth = threadW * 0.12f, cap = StrokeCap.Round)
             }
         }
     }
