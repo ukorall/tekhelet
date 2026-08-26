@@ -110,6 +110,16 @@ fun TyingGuideScreen(
             }
         }
 
+        recommendation.cheaperIfSeven?.let {
+            Spacer(Modifier.height(4.dp))
+            Leaf(tinted = true) {
+                Text("אפשר גם בזול יותר", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(6.dp))
+                Text(it, style = MaterialTheme.typography.bodyMedium)
+            }
+            Spacer(Modifier.height(12.dp))
+        }
+
         if (recommendation.lishmahOptions.isNotEmpty()) {
             Spacer(Modifier.height(6.dp))
             Text("ואם רוצים להדר: ניפוץ לשמה", style = MaterialTheme.typography.titleSmall)

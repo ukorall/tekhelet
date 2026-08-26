@@ -8,7 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.tekhelet.knotadvisor.ui.components.GadilRule
+import org.tekhelet.knotadvisor.ui.components.*
 
 private data class Entry(val title: String, val body: String, val link: String? = null)
 
@@ -18,51 +18,42 @@ private data class Entry(val title: String, val body: String, val link: String? 
  */
 @Composable
 fun ExtrasScreen(onOpenLibrary: () -> Unit, onOpenTree: () -> Unit) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("עיון נוסף והרחבות", style = MaterialTheme.typography.headlineSmall)
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-        Text(
-            "דברים שלא נכנסים לתהליך ההחלטה עצמו, אבל שווה להכיר. חלקם סוגיות " +
-                "שאני עצמי עדיין חוכך בהן.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "עיון נוסף והרחבות",
+            lead = "דברים שלא נכנסים לתהליך ההחלטה עצמו, אבל שווה להכיר. חלקם " +
+                "סוגיות שאני עצמי עדיין חוכך בהן."
         )
 
-        Spacer(Modifier.height(16.dp))
-        Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = onOpenLibrary) {
-            Column(Modifier.padding(14.dp)) {
-                Text("ספריית השיטות", style = MaterialTheme.typography.titleSmall)
-                Text("לעבור על כל השיטות בלי לעבור שאלון", style = MaterialTheme.typography.bodySmall)
-            }
-        }
-        Card(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), onClick = onOpenTree) {
-            Column(Modifier.padding(14.dp)) {
-                Text("מפת השיטות", style = MaterialTheme.typography.titleSmall)
-                Text("התרשים שלי, בגרסה שאפשר לנווט בה", style = MaterialTheme.typography.bodySmall)
-            }
-        }
+        Spacer(Modifier.height(24.dp))
+        NavRow("ספריית השיטות", "לעבור על כל השיטות בלי לעבור שאלון", onClick = onOpenLibrary)
+        NavRow("מפת השיטות", "התרשים שלי, בגרסה שאפשר לנווט בה", onClick = onOpenTree)
 
-        Text("סוגיות שכדאי לפתוח", style = MaterialTheme.typography.titleMedium)
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(28.dp))
+        SectionHeading("סוגיות שכדאי לפתוח")
+        Spacer(Modifier.height(14.dp))
         entries.forEach { ExpandableEntry(it) }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(32.dp))
     }
 }
 
 @Composable
 private fun ExpandableEntry(entry: Entry) {
     var open by remember { mutableStateOf(false) }
-    Card(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = { open = !open }) {
-        Column(Modifier.padding(14.dp)) {
-            Text(entry.title, style = MaterialTheme.typography.titleSmall)
-            AnimatedVisibility(open) {
-                Column {
-                    Spacer(Modifier.height(6.dp))
-                    Text(entry.body, style = MaterialTheme.typography.bodyMedium)
-                    entry.link?.let {
-                        Spacer(Modifier.height(6.dp))
-                        Text(it, style = MaterialTheme.typography.labelSmall)
-                    }
+    Leaf(modifier = Modifier.padding(bottom = 10.dp), onClick = { open = !open }) {
+        Text(entry.title, style = MaterialTheme.typography.titleMedium)
+        AnimatedVisibility(open) {
+            Column {
+                Spacer(Modifier.height(10.dp))
+                Text(entry.body, style = MaterialTheme.typography.bodyMedium)
+                entry.link?.let {
+                    Spacer(Modifier.height(10.dp))
+                    Aside(it)
                 }
             }
         }

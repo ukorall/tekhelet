@@ -94,19 +94,28 @@ object Products {
         val tier: LengthTier,
         val reasoning: String,
         val matches: List<Product>,
-        val lishmahOptions: List<LishmahProduct>
+        val lishmahOptions: List<LishmahProduct>,
+        /**
+         * הערה על אפשרות זולה יותר, כשההרכב לא מכריע בין 7 חוליות ל-13.
+         * הציור מראה 13, אבל מי שיבחר 7 לא צריך לשלם על האורך המלא - וחבל
+         * שההמלצה תשתוק על זה רק כי הציור הכריע.
+         */
+        val cheaperIfSeven: String? = null
     )
+
+    /** כלל האצבע עצמו, במקום אחד - כדי שגם החישוב החלופי של 7 חוליות ישתמש בו. */
+    private fun tierFor(tekheletWinds: Int): LengthTier = when {
+        tekheletWinds >= 30 -> LengthTier.STANDARD
+        tekheletWinds >= 12 -> LengthTier.CHINUCH_GRA
+        else -> LengthTier.SEVEN
+    }
 
     /** ממליץ על מדרגת אורך ומוצרים, לפי מספר הכריכות בתכלת בלבד. */
     fun recommend(composition: KnotComposition): Recommendation {
         val summary = GadilBuilder.plan(composition)
         val t = summary.tekheletWinds
 
-        val tier = when {
-            t >= 30 -> LengthTier.STANDARD
-            t >= 12 -> LengthTier.CHINUCH_GRA
-            else -> LengthTier.SEVEN
-        }
+        val tier = tierFor(t)
         val reasoning = when (tier) {
             LengthTier.STANDARD ->
                 "בהרכב הזה יוצאות $t כריכות בתכלת - קרוב ל-40, ולכן צריך את הארוך " +
@@ -129,6 +138,17 @@ object Products {
 
         val lishmahOptions = lishmah.filter { threadCount == null || it.threadCount == threadCount }
 
-        return Recommendation(t, tier, reasoning, matches, lishmahOptions)
+        val cheaperIfSeven = if (composition.chulyotCount == ChulyotCount.SEVEN_OR_THIRTEEN) {
+            val asSeven = composition.copy(chulyotCount = ChulyotCount.SEVEN)
+            val sevenWinds = GadilBuilder.plan(asSeven).tekheletWinds
+            val sevenTier = tierFor(sevenWinds)
+            if (sevenTier != tier) {
+                "השיטה הזו לא מכריעה בין 7 חוליות ל-13, והחישוב למעלה הוא לפי 13. " +
+                    "אם תבחר 7, יוצאות רק $sevenWinds כריכות בתכלת ומספיקה מדרגת " +
+                    "\"${sevenTier.label}\" - כלומר סט זול יותר."
+            } else null
+        } else null
+
+        return Recommendation(t, tier, reasoning, matches, lishmahOptions, cheaperIfSeven)
     }
 }

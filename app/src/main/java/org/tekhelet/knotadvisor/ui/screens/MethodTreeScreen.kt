@@ -18,8 +18,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.*
-import org.tekhelet.knotadvisor.ui.components.GadilRule
-import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * מפת השיטות - הגרסה הניתנת לניווט של התרשים.
@@ -55,19 +54,20 @@ fun MethodTreeScreen(
     val excluded = methods.filterNot { survives(it, 4) }
     val anyFilter = listOfNotNull(threadCount, windingColor, chulyotCount, knotScheme).isNotEmpty()
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)) {
-        Spacer(Modifier.height(12.dp))
-        Text("מפת השיטות", style = MaterialTheme.typography.headlineSmall)
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
-        Text(
-            "זה התרשים שלי, רק שאפשר לרדת בו שלב-שלב. בכל צומת בוחרים ענף, " +
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "מפת השיטות",
+            lead = "זה התרשים שלי, רק שאפשר לרדת בו שלב-שלב. בכל צומת בוחרים ענף, " +
                 "והמפה מצטמצמת. שום שיטה לא נפסלת - מה שיוצא מהענף פשוט יורד למטה. " +
                 "מוצגים כאן רק ענפים שיש להם שיטה בפועל; אפשרויות תיאורטיות נוספות " +
-                "קיימות בבונה ההרכב האישי.",
-            style = MaterialTheme.typography.bodyMedium
+                "קיימות בבונה ההרכב האישי."
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(18.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
             Surface(
                 color = MaterialTheme.colorScheme.primaryContainer,

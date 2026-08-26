@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.JourneyState
 import org.tekhelet.knotadvisor.model.JourneyStation
-import org.tekhelet.knotadvisor.ui.components.GadilRule
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * מסך המסע: רואים את כל התחנות, איפה עומדים, ומה כבר הושלם. אפשר לקפוץ לכל
@@ -25,62 +25,65 @@ fun JourneyScreen(
     onPause: () -> Unit,
     onReset: () -> Unit
 ) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("המסע", style = MaterialTheme.typography.headlineSmall)
-        if (consultingFor.isNotBlank()) {
-            Text("עבור $consultingFor", style = MaterialTheme.typography.bodyMedium)
-        }
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-        Text(
-            "חמש תחנות, לפי הסדר שבו הן באמת מגיעות. אפשר לעצור בכל שלב - " +
-                "אני זוכר איפה עצרנו.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "המסע",
+            kicker = if (consultingFor.isNotBlank()) "עבור $consultingFor" else null,
+            lead = "חמש תחנות, לפי הסדר שבו הן באמת מגיעות. אפשר לעצור בכל שלב - " +
+                "אני זוכר איפה עצרנו."
         )
 
-        Spacer(Modifier.height(14.dp))
+        Spacer(Modifier.height(22.dp))
         LinearProgressIndicator(progress = { journey.progress }, modifier = Modifier.fillMaxWidth())
-        Spacer(Modifier.height(4.dp))
-        Text(
-            "${journey.completed.size} מתוך ${JourneyStation.ordered.size} תחנות הושלמו",
-            style = MaterialTheme.typography.labelSmall
+        Spacer(Modifier.height(6.dp))
+        Aside(
+            ltr("${journey.completed.size}") + " מתוך " +
+                ltr("${JourneyStation.ordered.size}") + " תחנות הושלמו"
         )
 
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(24.dp))
         JourneyStation.ordered.forEach { station ->
             val isCurrent = station == journey.currentStation
             val isDone = station in journey.completed
-            Card(modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
-                onClick = { onOpenStation(station) },
-                colors = CardDefaults.cardColors(
-                    containerColor = when {
-                        isCurrent -> MaterialTheme.colorScheme.primaryContainer
-                        isDone -> MaterialTheme.colorScheme.surfaceVariant
-                        else -> MaterialTheme.colorScheme.surface
-                    }
-                )
+            Leaf(
+                modifier = Modifier.padding(bottom = 10.dp),
+                tinted = isCurrent,
+                onClick = { onOpenStation(station) }
             ) {
-                Column(Modifier.padding(14.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            "${station.index + 1}. ${station.title}",
-                            style = MaterialTheme.typography.titleSmall,
-                            modifier = Modifier.weight(1f)
-                        )
-                        if (isDone) Text("✓", style = MaterialTheme.typography.titleMedium)
-                        else if (isCurrent) Text("כאן", style = MaterialTheme.typography.labelSmall)
-                    }
-                    Spacer(Modifier.height(4.dp))
-                    Text(station.blurb, style = MaterialTheme.typography.bodySmall)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Pill(ltr("${station.index + 1}"), emphasised = isCurrent)
+                    Spacer(Modifier.width(10.dp))
+                    Text(
+                        station.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    if (isDone) Text("✓", style = MaterialTheme.typography.titleLarge)
+                    else if (isCurrent) Pill("כאן")
                 }
+                Spacer(Modifier.height(6.dp))
+                Text(station.blurb, style = MaterialTheme.typography.bodyMedium)
             }
         }
 
-        Spacer(Modifier.height(10.dp))
-        Button(onClick = onCompleteCurrent, modifier = Modifier.fillMaxWidth()) {
+        Spacer(Modifier.height(14.dp))
+        Button(
+            onClick = onCompleteCurrent,
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth().height(52.dp)
+        ) {
             Text("סיימתי את \"${journey.currentStation.title}\", לתחנה הבאה")
         }
         Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onPause, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(
+            onClick = onPause,
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("לעצור כאן בינתיים")
         }
         Spacer(Modifier.height(8.dp))

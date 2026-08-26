@@ -23,15 +23,17 @@ import org.tekhelet.knotadvisor.R
 import org.tekhelet.knotadvisor.data.AssetImages
 import org.tekhelet.knotadvisor.model.KnotMethod
 import org.tekhelet.knotadvisor.logic.CompositionCoherence
-import org.tekhelet.knotadvisor.ui.components.CompositionCard
-import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
+import org.tekhelet.knotadvisor.ui.components.*
 
 @Composable
 fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
-    LazyColumn(modifier = Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = PageGutter),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
         item {
-            Text(method.name, style = MaterialTheme.typography.headlineSmall)
-            Text(eraLabel(method.era), style = MaterialTheme.typography.labelMedium)
+            Spacer(Modifier.height(20.dp))
+            PageHeader(title = method.name, kicker = eraLabel(method.era))
         }
         item { MethodImages(method) }
         item {
@@ -40,12 +42,10 @@ fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
         item { CompositionCard(method.composition) }
         if (method.editorialNote != null) {
             item {
-                Card(modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(14.dp)) {
-                        Text("מה אני חושב על זה", style = MaterialTheme.typography.titleSmall)
-                        Spacer(Modifier.height(4.dp))
-                        Text(method.editorialNote, style = MaterialTheme.typography.bodyMedium)
-                    }
+                Leaf(tinted = true) {
+                    Text("מה אני חושב על זה", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(6.dp))
+                    Text(method.editorialNote, style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

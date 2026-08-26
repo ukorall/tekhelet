@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.FeedbackKind
 import org.tekhelet.knotadvisor.ui.AppViewModel
-import org.tekhelet.knotadvisor.ui.components.GadilRule
+import org.tekhelet.knotadvisor.ui.components.*
 
 @Composable
 fun FeedbackScreen(viewModel: AppViewModel, fromScreen: String) {
@@ -23,18 +23,20 @@ fun FeedbackScreen(viewModel: AppViewModel, fromScreen: String) {
     var rating by remember { mutableStateOf<Int?>(null) }
     var saved by remember { mutableStateOf(false) }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("יש לך הערה בשבילי?", style = MaterialTheme.typography.headlineSmall)
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-        Text(
-            "כל הערה עוזרת - טעות בתוכן, ניסוח מבלבל, משהו שחסר, או סתם מחשבה. " +
-                "אחרי ששולחים, נוצר קובץ קטן שאפשר לשלוח לי בוואטסאפ או במייל.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "יש לך הערה בשבילי?",
+            lead = "כל הערה עוזרת - טעות בתוכן, ניסוח מבלבל, משהו שחסר, או סתם " +
+                "מחשבה. אחרי ששולחים, נוצר קובץ קטן שאפשר לשלוח לי בוואטסאפ או במייל."
         )
 
-        Spacer(Modifier.height(18.dp))
-        Text("על מה מדובר", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(24.dp))
+        SectionHeading("על מה מדובר")
+        Spacer(Modifier.height(10.dp))
         FeedbackKind.entries.forEach { k ->
             Row(
                 Modifier.fillMaxWidth().selectable(kind == k) { kind = k }.padding(vertical = 5.dp),

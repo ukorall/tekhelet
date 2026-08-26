@@ -8,22 +8,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.KnotMethod
+import org.tekhelet.knotadvisor.ui.components.*
 
 @Composable
 fun MethodsLibraryScreen(methods: List<KnotMethod>, onSelect: (String) -> Unit) {
-    Column(modifier = Modifier.fillMaxSize().padding(24.dp)) {
-        Text("כל שיטות הקשירה", style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(methods) { method ->
-                Card(modifier = Modifier.fillMaxWidth(), onClick = { onSelect(method.id) }) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(method.name, style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(4.dp))
-                        Text(method.shortSummary, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-            }
+    LazyColumn(modifier = Modifier.fillMaxSize().padding(horizontal = PageGutter)) {
+        item {
+            Spacer(Modifier.height(20.dp))
+            PageHeader(
+                title = "כל שיטות הקשירה",
+                lead = "הרשימה המלאה, בלי דירוג ובלי שאלון."
+            )
+            Spacer(Modifier.height(20.dp))
         }
+        items(methods) { method ->
+            NavRow(method.name, method.shortSummary) { onSelect(method.id) }
+        }
+        item { Spacer(Modifier.height(32.dp)) }
     }
 }

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.Topic
-import org.tekhelet.knotadvisor.ui.components.GadilRule
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * מסך לאזור שעדיין אין בו שאלון פעיל. במקום "בקרוב" ריק, מוצג כאן מה שכבר
@@ -16,23 +16,28 @@ import org.tekhelet.knotadvisor.ui.components.GadilRule
  */
 @Composable
 fun TopicNotesScreen(topic: Topic) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text(topic.title, style = MaterialTheme.typography.headlineSmall)
-        Text(topic.subtitle, style = MaterialTheme.typography.bodyMedium)
-        GadilRule(modifier = Modifier.padding(top = 12.dp, bottom = 14.dp))
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(title = topic.title, kicker = topic.subtitle)
+        Spacer(Modifier.height(16.dp))
+        GadilRule()
 
+        Spacer(Modifier.height(20.dp))
         Text(
             "עוד לא בניתי כאן שאלון אינטראקטיבי. בינתיים, אלה הדברים שהייתי אומר לך " +
                 "אם היינו יושבים ומדברים על זה:",
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyLarge
         )
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(20.dp))
 
         topic.notes.forEach { note ->
-            Card(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
-                Text(note, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(14.dp))
+            Leaf(modifier = Modifier.padding(bottom = 10.dp)) {
+                Text(note, style = MaterialTheme.typography.bodyMedium)
             }
         }
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(32.dp))
     }
 }

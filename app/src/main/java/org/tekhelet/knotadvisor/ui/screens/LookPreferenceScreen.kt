@@ -11,8 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.*
-import org.tekhelet.knotadvisor.ui.components.GadilRule
-import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * "מה יפה בעיניי" - הכרעה חזותית ישירה בין שלוש המראות האפשריים, עם ציור לכל
@@ -27,22 +26,23 @@ fun LookPreferenceScreen(
     onSelectKnot: (KnotLookPreference) -> Unit,
     onContinue: () -> Unit
 ) {
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("מה יפה בעיניך?", style = MaterialTheme.typography.headlineSmall)
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 12.dp))
-        Text(
-            "אמרת לי כמה חשוב לך שהקשירה תהיה יפה. עכשיו אני רוצה לדעת מה בעצם " +
-                "יפה בעיניך - כי על זה אין ויכוח, וזה שוקל אצלי יותר מכל ניחוש " +
-                "שאני יכול לנחש במקומך.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "מה יפה בעיניך?",
+            lead = "אמרת לי כמה חשוב לך שהקשירה תהיה יפה. עכשיו אני רוצה לדעת מה " +
+                "בעצם יפה בעיניך - כי על זה אין ויכוח, וזה שוקל אצלי יותר מכל " +
+                "ניחוש שאני יכול לנחש במקומך."
         )
 
-        Spacer(Modifier.height(18.dp))
+        Spacer(Modifier.height(24.dp))
         LookPreference.entries.forEach { option ->
             val isSelected = option == selected
-            Card(
+            Leaf(
                 modifier = Modifier
-                    .fillMaxWidth()
                     .padding(bottom = 12.dp)
                     .selectable(isSelected) { onSelect(option) }
                     .then(
@@ -52,19 +52,16 @@ fun LookPreferenceScreen(
                             MaterialTheme.shapes.medium
                         ) else Modifier
                     ),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surface
-                )
+                tinted = isSelected
             ) {
-                Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(selected = isSelected, onClick = { onSelect(option) })
-                            Text(option.label, style = MaterialTheme.typography.titleSmall)
+                            Text(option.label, style = MaterialTheme.typography.titleMedium)
                         }
-                        Spacer(Modifier.height(4.dp))
-                        Text(option.blurb, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(6.dp))
+                        Text(option.blurb, style = MaterialTheme.typography.bodyMedium)
                     }
                     Spacer(Modifier.width(10.dp))
                     Box(Modifier.width(96.dp)) {
@@ -78,13 +75,13 @@ fun LookPreferenceScreen(
             }
         }
 
-        Spacer(Modifier.height(10.dp))
-        Text("ומה לגבי הקשרים הכפולים?", style = MaterialTheme.typography.titleSmall)
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(18.dp))
+        SectionHeading("ומה לגבי הקשרים הכפולים?")
+        Spacer(Modifier.height(12.dp))
         Text(
             "יש שיטות שבהן רואים קשרים כפולים לאורך הגדיל, ויש שבהן כמעט לא. " +
                 "יש אנשים שזה בדיוק מה שעושה להם את זה יפה, ויש שזה מפריע להם.",
-            style = MaterialTheme.typography.bodySmall
+            style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(10.dp))
         KnotLookPreference.entries.forEach { k ->
@@ -99,9 +96,13 @@ fun LookPreferenceScreen(
             }
         }
 
-        Spacer(Modifier.height(20.dp))
-        Button(onClick = onContinue, modifier = Modifier.fillMaxWidth()) {
-            Text("להמשיך לתוצאות")
+        Spacer(Modifier.height(26.dp))
+        Button(
+            onClick = onContinue,
+            shape = MaterialTheme.shapes.small,
+            modifier = Modifier.fillMaxWidth().height(52.dp)
+        ) {
+            Text("להמשיך לתוצאות", style = MaterialTheme.typography.titleMedium)
         }
         Spacer(Modifier.height(24.dp))
     }

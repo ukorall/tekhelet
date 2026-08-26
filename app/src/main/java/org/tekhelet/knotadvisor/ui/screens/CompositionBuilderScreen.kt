@@ -14,8 +14,7 @@ import org.tekhelet.knotadvisor.logic.CompositionCoherence
 import org.tekhelet.knotadvisor.logic.GadilBuilder
 import org.tekhelet.knotadvisor.model.*
 import org.tekhelet.knotadvisor.ui.AppViewModel
-import org.tekhelet.knotadvisor.ui.components.GadilRule
-import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * בונה ההרכב האישי: במקום לבחור שיטה מוכנה, מכריעים בכל אחד מחמשת הדיונים
@@ -32,19 +31,21 @@ fun CompositionBuilderScreen(viewModel: AppViewModel) {
     val summary = remember(c) { GadilBuilder.plan(c) }
     val closest = remember(c) { viewModel.closestMethod(c) }
 
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-        Text("בונה ההרכב האישי", style = MaterialTheme.typography.headlineSmall)
-        GadilRule(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
-        Text(
-            "כל שיטה מוכרת היא בסך הכול צירוף של הכרעות בחמישה דיונים. כאן אתה מכריע " +
-                "בכל אחד בעצמו ורואה מיד מה יצא. אין כאן צירוף \"אסור\" - יש צירופים " +
-                "שמושכים לשני כיוונים, ועל אלה אעיר לך.",
-            style = MaterialTheme.typography.bodyMedium
+    Column(
+        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = PageGutter)
+    ) {
+        Spacer(Modifier.height(20.dp))
+        PageHeader(
+            title = "בונה ההרכב האישי",
+            lead = "כל שיטה מוכרת היא בסך הכול צירוף של הכרעות בחמישה דיונים. כאן " +
+                "אתה מכריע בכל אחד בעצמו ורואה מיד מה יצא. אין כאן צירוף \"אסור\" - " +
+                "יש צירופים שמושכים לשני כיוונים, ועל אלה אעיר לך."
         )
 
-        Spacer(Modifier.height(18.dp))
-        ElevatedCard(Modifier.fillMaxWidth()) {
-            Column(Modifier.padding(16.dp)) {
+        Spacer(Modifier.height(24.dp))
+        Leaf {
+            Column {
                 Text("איך זה ייראה", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(10.dp))
                 TzitzitVisual(c, height = 320.dp)

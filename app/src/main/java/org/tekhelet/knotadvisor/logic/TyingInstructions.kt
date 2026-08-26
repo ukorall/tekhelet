@@ -1,6 +1,7 @@
 package org.tekhelet.knotadvisor.logic
 
 import org.tekhelet.knotadvisor.model.ChulyaForm
+import org.tekhelet.knotadvisor.model.ChulyotCount
 import org.tekhelet.knotadvisor.model.KnotComposition
 import org.tekhelet.knotadvisor.model.ThreadCount
 
@@ -19,7 +20,7 @@ object TyingInstructions {
     fun generate(c: KnotComposition): List<Step> {
         val opening = openingSteps(c)
         val body = collapse(bodyLines(c))
-        val closing = closingSteps()
+        val closing = closingSteps(c)
 
         val all = opening + body + closing
         val notes = mutableMapOf<Int, String>()
@@ -39,7 +40,16 @@ object TyingInstructions {
         )
     }
 
-    private fun closingSteps(): List<String> = buildList {
+    private fun closingSteps(c: KnotComposition): List<String> = buildList {
+        // השיטות שלא מכריעות בין 7 ל-13 מצוירות כ-13, ולכן חייבים לומר את זה -
+        // אחרת הציור נראה כאילו הוא מכריע במקום המשתמש.
+        if (c.chulyotCount == ChulyotCount.SEVEN_OR_THIRTEEN) {
+            add(
+                "השיטה הזו לא מכריעה בין 7 חוליות ל-13, ושתי האפשרויות בתוכה. " +
+                    "כאן זה מצויר כ-13, שזו האפשרות המלאה. אם תבחר 7, פשוט תעצור " +
+                    "אחרי החוליה השביעית - וגם תוכל להסתפק בסט חוט קצר יותר."
+            )
+        }
         add("הגדיל צריך להיות כשליש מאורך הציצית, והענף שני שליש.")
         add(
             "הרב ינון מלאכי ממליץ ללחלח את הציציות במים לפני הכריכה, או לטבול אותן " +

@@ -13,6 +13,7 @@ import org.tekhelet.knotadvisor.model.Constraint
 import org.tekhelet.knotadvisor.model.Question
 import org.tekhelet.knotadvisor.model.QuestionType
 import org.tekhelet.knotadvisor.ui.AppViewModel
+import org.tekhelet.knotadvisor.ui.components.*
 
 /**
  * כל שאלות השלב הראשי מוצגות כאן במסך אחד גלול, כדי שאפשר יהיה לראות את כל השאלון
@@ -37,23 +38,23 @@ fun QuestionnaireScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp)
+                .padding(horizontal = PageGutter)
         ) {
-            Text("השאלון", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(4.dp))
-            Text(
-                "כל השאלות במסך אחד - אפשר לגלול, לשנות תשובה בכל שלב, ולסיים מתי שנוח.",
-                style = MaterialTheme.typography.bodySmall
+            Spacer(Modifier.height(20.dp))
+            PageHeader(
+                title = "השאלון",
+                lead = "כל השאלות במסך אחד - אפשר לגלול, לשנות תשובה בכל שלב, " +
+                    "ולסיים מתי שנוח."
             )
-            Spacer(Modifier.height(10.dp))
-            Card(modifier = Modifier.fillMaxWidth()) {
+            Spacer(Modifier.height(16.dp))
+            Leaf(tinted = true) {
                 Text(
-                    "בכל השאלות שיש בהן סרגל: 10 זה \"הכי חשוב לי\", 1 זה \"הכי פחות חשוב לי\".",
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(12.dp)
+                    "בכל השאלות שיש בהן סרגל: 10 זה \"הכי חשוב לי\", 1 זה " +
+                        "\"הכי פחות חשוב לי\".",
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(26.dp))
 
             ConstraintsSection(viewModel)
             Spacer(Modifier.height(20.dp))
