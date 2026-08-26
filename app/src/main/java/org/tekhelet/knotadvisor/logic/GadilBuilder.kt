@@ -171,10 +171,12 @@ object GadilBuilder {
      * הכריכה הראשונה והאחרונה **תמיד** לבנות - דין גמרא מפורש (מנחות ל"ט ע"א),
      * וזה נאכף כאן ולא נשאר לנתונים, כדי שאי אפשר יהיה להגדיר שיטה שמפרה אותו.
      */
-    private fun windColours(c: KnotComposition, total: Int): Map<Int, Boolean> {
+    private fun windColours(c: KnotComposition, total: Int): BooleanArray {
         val chulyaOf = { i: Int -> (i - 1) / WINDS_PER_CHULYA }
-        val map = (1..total).associateWith { i ->
-            when (c.windingColor) {
+        // אינדקס 0 אינו בשימוש, כדי שהמערך יהיה 1-based כמו מספור הכריכות
+        val arr = BooleanArray(total + 1)
+        for (i in 1..total) {
+            arr[i] = when (c.windingColor) {
                 WindingColor.MOSTLY_TEKHELET_SINGLE_WIND -> true
                 WindingColor.MOSTLY_TEKHELET_FULL_CHULYA ->
                     chulyaOf(i) != 0 && chulyaOf(i) != chulyaOf(total)
@@ -183,10 +185,10 @@ object GadilBuilder {
                 WindingColor.ALTERNATING_WINDS -> (i % 2) == 0
                 null -> true
             }
-        }.toMutableMap()
-        map[1] = false
-        map[total] = false
-        return map
+        }
+        arr[1] = false
+        arr[total] = false
+        return arr
     }
 
     fun summary(c: KnotComposition): Plan = plan(c)
