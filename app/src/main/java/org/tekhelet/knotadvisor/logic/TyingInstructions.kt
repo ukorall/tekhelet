@@ -19,7 +19,7 @@ object TyingInstructions {
     fun generate(c: KnotComposition): List<Step> {
         val opening = openingSteps(c)
         val body = collapse(bodyLines(c))
-        val closing = closingSteps(c)
+        val closing = closingSteps()
 
         val all = opening + body + closing
         val notes = mutableMapOf<Int, String>()
@@ -39,7 +39,7 @@ object TyingInstructions {
         )
     }
 
-    private fun closingSteps(c: KnotComposition): List<String> = buildList {
+    private fun closingSteps(): List<String> = buildList {
         add("הגדיל צריך להיות כשליש מאורך הציצית, והענף שני שליש.")
         add(
             "הרב ינון מלאכי ממליץ ללחלח את הציציות במים לפני הכריכה, או לטבול אותן " +

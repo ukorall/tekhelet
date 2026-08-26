@@ -73,23 +73,24 @@ object GadilBuilder {
         // קשר פותח, אלא אם החוליה עצמה היא הקשר
         if (c.knotScheme != KnotScheme.CHULYA_IS_KNOT) elements += Element.Knot
 
+        val chulyaEnds = chulyaBoundaries(c, totalWinds)
+
         var runStart = 1
         for (i in 1..totalWinds) {
-            val endOfChulya = i % WINDS_PER_CHULYA == 0
+            val endOfChulya = i in chulyaEnds
             val knotHere = i in knotAfter
             val colourChanges = i == totalWinds || colours[i] != colours[i + 1]
             val lastWind = i == totalWinds
 
             if (endOfChulya || knotHere || colourChanges || lastWind) {
                 val length = i - runStart + 1
-                val chulyaIndex = (runStart - 1) / WINDS_PER_CHULYA
+                val startsChulya = runStart == 1 || (runStart - 1) in chulyaEnds
                 elements += Element.Winds(
                     Piece(
                         tekhelet = colours[runStart],
                         length = length,
-                        isWholeChulya = length == WINDS_PER_CHULYA &&
-                            (runStart - 1) % WINDS_PER_CHULYA == 0,
-                        chulyaIndex = chulyaIndex
+                        isWholeChulya = startsChulya && i in chulyaEnds,
+                        chulyaIndex = chulyaEnds.count { it < runStart }
                     )
                 )
                 if (knotHere && !lastWind) {
@@ -110,10 +111,30 @@ object GadilBuilder {
             elements = elements,
             totalWinds = totalWinds,
             tekheletWinds = (1..totalWinds).count { colours[it] },
-            chulyot = (totalWinds + WINDS_PER_CHULYA - 1) / WINDS_PER_CHULYA,
+            chulyot = chulyaBoundaries(c, totalWinds).size,
             doubleKnots = elements.count { it is Element.Knot },
             chulyaForm = form
         )
+    }
+
+    /**
+     * אחרי אילו כריכות נגמרת חוליה.
+     *
+     * בדרך כלל חוליה היא שלוש כריכות. אבל כשההרכב מגדיר `windGroups` יחד עם
+     * קשר אחרי כל חוליה (ראב"ד, הרב אריאל), **הקבוצות עצמן הן החוליות** - אצל
+     * הרב אריאל 7 חוליות של 5,5,6,6,6,6,6 כריכות, ולא 13 חוליות של שלוש.
+     * בלי ההבחנה הזו הגדיל נחתך גם בגבולות של שלוש וגם בגבולות הקבוצות,
+     * ויוצא רסק של מקטעים שגם שגוי וגם בלתי קריא.
+     *
+     * לעומת זאת בשיטה החסידית `windGroups` מציין רק היכן הקשרים - החוליות שם
+     * נשארות של שלוש כריכות, ובדיוק בגלל זה הקשרים נופלים בתוכן.
+     */
+    private fun chulyaBoundaries(c: KnotComposition, total: Int): Set<Int> {
+        if (c.windGroups.isNotEmpty() && c.knotScheme == KnotScheme.DOUBLE_EVERY_CHULYA) {
+            var acc = 0
+            return c.windGroups.map { acc += it; acc }.toSet() + total
+        }
+        return (1..total).filter { it % WINDS_PER_CHULYA == 0 }.toSet() + total
     }
 
     /**

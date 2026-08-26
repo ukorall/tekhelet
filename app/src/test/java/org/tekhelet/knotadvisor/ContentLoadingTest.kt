@@ -137,7 +137,8 @@ class ContentLoadingTest {
         methods.forEach { m ->
             val steps = TyingInstructions.generate(m.composition)
             assertTrue(
-                "${m.id}: ${steps.size} שלבים - ארוך מדי, הקיפול לא עבד",
+                "${m.id}: ${steps.size} שלבים - ארוך מדי, הקיפול לא עבד.\n" +
+                    steps.joinToString("\n") { "  ${it.number}. ${it.text}" },
                 steps.size <= 30
             )
         }
