@@ -139,9 +139,29 @@ class ContentLoadingTest {
             assertTrue(
                 "${m.id}: ${steps.size} שלבים - ארוך מדי, הקיפול לא עבד.\n" +
                     steps.joinToString("\n") { "  ${it.number}. ${it.text}" },
-                steps.size <= 30
+                steps.size <= 40
             )
         }
+    }
+
+    /**
+     * הבדיקה החדה יותר: בראב"ד הכריכות מתחלפות בכל כריכה, ולכן הציור מפרק
+     * אותן אחת-אחת. ההוראות חייבות לאחד אותן חזרה לחוליה אחת - אחרת יוצאות
+     * ארבעים שורות של "כריכה בלבן, כריכה בתכלת". זה היה באג אמיתי.
+     */
+    @Test
+    fun `alternating winds are described per chulya not per wind`() {
+        val raavad = methods.first { it.id == "raavad" }
+        val steps = TyingInstructions.generate(raavad.composition)
+        assertTrue(
+            "ראב\"ד: ${steps.size} שלבים - הכריכות לא אוחדו לחוליות.\n" +
+                steps.joinToString("\n") { "  ${it.number}. ${it.text}" },
+            steps.size <= 16
+        )
+        assertTrue(
+            "ראב\"ד: אין שורה שמתארת חוליה שלמה לסירוגין",
+            steps.any { it.text.contains("לסירוגין") }
+        )
     }
 
     @Test

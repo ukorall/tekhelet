@@ -47,30 +47,55 @@ object TyingInstructions {
         )
     }
 
-    /** שורה אחת לכל אלמנט בגדיל. */
+    /**
+     * שורה אחת לכל יחידה שאדם באמת עושה.
+     *
+     * הנקודה החשובה כאן: כשהכריכות מתחלפות בכל כריכה (הראב"ד), הציור צריך כל
+     * כריכה בנפרד - אבל **ההוראות לא**. אף אחד לא רוצה לקרוא "כריכה בלבן,
+     * כריכה בתכלת" שבע פעמים; הוא רוצה "חוליה של 7 כריכות, לבן ותכלת
+     * לסירוגין, מתחיל בלבן" - וכך גם המקורות מתארים את זה. לכן מקטעים
+     * שנמצאים באותה חוליה מאוחדים כאן לשורה אחת.
+     */
     private fun bodyLines(c: KnotComposition): List<String> {
         val plan = GadilBuilder.plan(c)
         val form = plan.chulyaForm
         val out = mutableListOf<String>()
 
-        plan.elements.forEach { el ->
-            when (el) {
+        var i = 0
+        while (i < plan.elements.size) {
+            when (val el = plan.elements[i]) {
                 is GadilBuilder.Element.Winds -> {
-                    val p = el.piece
-                    val colour = if (p.tekhelet) "בתכלת" else "בלבן"
-                    val n = p.length
-                    out += when (form) {
-                        ChulyaForm.YEMENITE_SELF_HOLDING ->
-                            if (p.isWholeChulya)
-                                "חוליה תימנית $colour: חצי כריכה ימנית, שתי כריכות באלכסון " +
-                                    "היורד משמאל לימין, וחצי כריכה שמאלית. המבנה מחזיק את עצמו."
-                            else
-                                "$n כריכות $colour, כחלק מהמבנה התימני."
-                        ChulyaForm.YEMENITE_INVERTED ->
-                            "$n כריכות $colour, בחוליה תימנית הפוכה."
-                        else ->
-                            if (n == 1) "כריכה אחת $colour." else "$n כריכות $colour."
+                    // אוספים את כל המקטעים של אותה חוליה
+                    var j = i
+                    var winds = 0
+                    val chulya = el.piece.chulyaIndex
+                    while (j < plan.elements.size) {
+                        val e = plan.elements[j]
+                        if (e !is GadilBuilder.Element.Winds || e.piece.chulyaIndex != chulya) break
+                        winds += e.piece.length
+                        j++
                     }
+                    val parts = j - i
+                    val first = el.piece
+                    val colour = if (first.tekhelet) "בתכלת" else "בלבן"
+
+                    out += when {
+                        parts > 1 -> {
+                            val startsWith = if (first.tekhelet) "בתכלת" else "בלבן"
+                            "חוליה של $winds כריכות, לבן ותכלת לסירוגין, מתחילה $startsWith."
+                        }
+                        form == ChulyaForm.YEMENITE_SELF_HOLDING && first.isWholeChulya ->
+                            "חוליה תימנית $colour: חצי כריכה ימנית, שתי כריכות באלכסון היורד " +
+                                "משמאל לימין, וחצי כריכה שמאלית. המבנה מחזיק את עצמו."
+                        form == ChulyaForm.YEMENITE_SELF_HOLDING ->
+                            "$winds כריכות $colour, כחלק מהמבנה התימני."
+                        form == ChulyaForm.YEMENITE_INVERTED ->
+                            "$winds כריכות $colour, בחוליה תימנית הפוכה."
+                        winds == 1 -> "כריכה אחת $colour."
+                        else -> "$winds כריכות $colour."
+                    }
+                    i = j
+                    continue
                 }
                 GadilBuilder.Element.Knot -> out += "קושרים קשר כפול."
                 GadilBuilder.Element.ChulyaGap ->
@@ -79,6 +104,7 @@ object TyingInstructions {
                 GadilBuilder.Element.SmallGap ->
                     out += "משאירים רווח קטן וברור לפני החוליה הבאה."
             }
+            i++
         }
         return out
     }
@@ -104,8 +130,10 @@ object TyingInstructions {
                         current.subList(start + len * reps, start + len * (reps + 1)) == block
                     ) reps++
 
-                    // כדאי לקפל רק אם זה באמת חוסך שורות
-                    if (reps >= 2 && len * reps >= 3) {
+                    // מקפלים רק אם זה חוסך לפחות שורה אחת בפועל. בלי זה נוצרות
+                    // שורות "חוזרים עוד פעם אחת" שלא חוסכות כלום ורק מפריעות.
+                    val saving = len * (reps - 1) - 1
+                    if (reps >= 2 && saving >= 1) {
                         val firstStep = start + 1
                         val lastStep = start + len
                         val label = if (len == 1)

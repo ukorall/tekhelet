@@ -56,6 +56,20 @@ android {
         buildConfig = true
     }
 
+    // בלי זה Gradle מדפיס רק "AssertionError at Foo.kt:139" בלי ההודעה עצמה,
+    // וכל כשל בבדיקה דורש סבב חקירה נוסף כדי לגלות מה בעצם נכשל.
+    testOptions {
+        unitTests.all {
+            it.testLogging {
+                events("failed", "skipped")
+                exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+                showExceptions = true
+                showCauses = true
+                showStackTraces = true
+            }
+        }
+    }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.14"
     }
