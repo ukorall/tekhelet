@@ -37,7 +37,7 @@ object ThreadLength {
     )
 
     fun estimate(composition: KnotComposition): Estimate {
-        val s = GadilBuilder.summary(composition)
+        val s = GadilBuilder.plan(composition)
         val minTotal = (12 * THUMB_CM_MIN)..(12 * THUMB_CM_MAX)
         // החוט מקופל, ולכן צריך בערך פי שניים מהאורך ה"נצרך"
         val tekheletCm = (s.tekheletWinds * CM_PER_WIND + s.doubleKnots * CM_PER_DOUBLE_KNOT) * 2

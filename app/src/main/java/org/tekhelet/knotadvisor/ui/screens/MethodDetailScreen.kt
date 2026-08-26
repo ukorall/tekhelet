@@ -72,9 +72,50 @@ fun MethodDetailScreen(method: KnotMethod, onUseInGuide: (() -> Unit)? = null) {
             }
         }
         if (method.variants.isNotEmpty()) {
-            item { Text("גרסאות אורך", style = MaterialTheme.typography.titleMedium) }
+            item {
+                Column {
+                    Text("מה עוד אפשר לעשות עם זה", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "הרבה ממה שאנשים באמת קושרים הוא לא השיטה ה\"נקייה\" של הראשון, " +
+                            "אלא צירוף שנוצר בפועל - בדרך כלל הוספה של משהו מבוסס. " +
+                            "אלה הצירופים הנפוצים על הבסיס הזה.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
             items(method.variants) { variant ->
-                Text("• ${variant.name}" + (variant.note?.let { " - $it" } ?: ""))
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(14.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                variant.name,
+                                style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.weight(1f)
+                            )
+                            if (variant.commonness >= 7) {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    shape = MaterialTheme.shapes.small
+                                ) {
+                                    Text(
+                                        "נפוץ",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(6.dp))
+                        Text(variant.rationale, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(10.dp))
+                        TzitzitVisual(
+                            variant.applyTo(method.composition),
+                            height = 220.dp,
+                            showLegend = false
+                        )
+                    }
+                }
             }
         }
         if (method.sources.isNotEmpty()) {

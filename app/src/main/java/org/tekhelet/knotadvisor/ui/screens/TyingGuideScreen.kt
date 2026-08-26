@@ -37,7 +37,7 @@ fun TyingGuideScreen(
     val composition = if (useCustom) initialComposition else (selected?.composition ?: KnotComposition())
 
     val steps = remember(composition) { TyingInstructions.generate(composition) }
-    val summary = remember(composition) { GadilBuilder.summary(composition) }
+    val summary = remember(composition) { GadilBuilder.plan(composition) }
     val recommendation = remember(composition) { Products.recommend(composition) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {

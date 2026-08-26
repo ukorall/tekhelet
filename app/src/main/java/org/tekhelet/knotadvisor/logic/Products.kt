@@ -65,7 +65,7 @@ object Products {
 
     /** ממליץ על מדרגת אורך ומוצרים, לפי מספר הכריכות בתכלת בלבד. */
     fun recommend(composition: KnotComposition): Recommendation {
-        val summary = GadilBuilder.summary(composition)
+        val summary = GadilBuilder.plan(composition)
         val t = summary.tekheletWinds
 
         val tier = when {

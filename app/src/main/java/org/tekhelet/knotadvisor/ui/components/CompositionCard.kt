@@ -55,10 +55,10 @@ fun CompositionCard(composition: KnotComposition, modifier: Modifier = Modifier)
                 Spacer(Modifier.height(12.dp))
             }
 
-            if (composition.windsPerChulya.isNotEmpty()) {
-                Text("כריכות בכל חוליה", style = MaterialTheme.typography.labelLarge)
+            if (composition.windGroups.isNotEmpty()) {
+                Text("כריכות בין קשר לקשר", style = MaterialTheme.typography.labelLarge)
                 Text(
-                    composition.windsPerChulya.joinToString(", ") { if (it == 0) "?" else it.toString() },
+                    composition.windGroups.joinToString(", "),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(Modifier.height(12.dp))

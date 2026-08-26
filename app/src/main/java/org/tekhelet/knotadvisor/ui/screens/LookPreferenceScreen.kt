@@ -112,10 +112,10 @@ private fun sampleFor(p: LookPreference): KnotComposition = when (p) {
     LookPreference.ALTERNATING_WINDS -> KnotComposition(
         threadCount = ThreadCount.RAAVAD_2_OF_8,
         windingColor = WindingColor.ALTERNATING_WINDS,
-        chulyotCount = ChulyotCount.FOUR,
+        chulyotCount = ChulyotCount.THIRTEEN,
         chulyaForm = ChulyaForm.STANDARD_DOUBLE_KNOT,
         knotScheme = KnotScheme.DOUBLE_EVERY_CHULYA,
-        windsPerChulya = listOf(7, 9, 11, 13)
+        windGroups = listOf(7, 9, 11, 13)
     )
     LookPreference.ALTERNATING_CHULYOT -> KnotComposition(
         threadCount = ThreadCount.RAAVAD_2_OF_8,

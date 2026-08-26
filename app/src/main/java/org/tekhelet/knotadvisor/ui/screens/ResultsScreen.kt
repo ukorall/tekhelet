@@ -24,6 +24,28 @@ fun ResultsScreen(
             "הדירוג מבוסס על מה שאמרת לי שחשוב לך. זה לא פסק הלכה - כל השיטות כאן לגיטימיות, וזו רק דרך למיין ביניהן.",
             style = MaterialTheme.typography.bodySmall
         )
+        if (viewModel.variantSuggestions.isNotEmpty()) {
+            Spacer(Modifier.height(14.dp))
+            Text("אולי בעצם זה מה שאתה מחפש", style = MaterialTheme.typography.titleSmall)
+            Spacer(Modifier.height(6.dp))
+            viewModel.variantSuggestions.take(3).forEach { s ->
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(Modifier.padding(14.dp)) {
+                        Text(s.variant.name, style = MaterialTheme.typography.titleSmall)
+                        Spacer(Modifier.height(4.dp))
+                        Text(s.reason, style = MaterialTheme.typography.bodySmall)
+                        Spacer(Modifier.height(4.dp))
+                        Text(s.variant.rationale, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
+        }
+
         Spacer(Modifier.height(16.dp))
 
         LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {

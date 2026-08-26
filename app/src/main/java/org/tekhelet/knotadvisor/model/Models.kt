@@ -40,14 +40,6 @@ data class SourceRef(
 )
 
 @Serializable
-data class MethodVariant(
-    val id: String,              // למשל "raavad-13"
-    val name: String,            // למשל "ראב"ד - 13 כריכות"
-    val windCount: Int? = null,  // מספר כריכות בפתיל התחתון, אם רלוונטי להבחנה
-    val note: String? = null
-)
-
-@Serializable
 data class KnotMethod(
     val id: String,
     val name: String,
@@ -62,6 +54,7 @@ data class KnotMethod(
     // זו השכבה העובדתית (ממה השיטה מורכבת), בשונה מ-axisScores שהיא שכבת ההעדפות.
     val composition: KnotComposition = KnotComposition(),
     val axisScores: Map<Axis, Int>,   // 0-10 לכל ציר, ראו Axis
+    /** וריאציות מקובלות על השיטה - ראו Variant.kt. */
     val variants: List<MethodVariant> = emptyList(),
     val sources: List<SourceRef> = emptyList(),
     val disqualifyingTags: List<String> = emptyList() // תגיות לסינון קשיח, למשל "invented-mix", "tosafot-based"

@@ -30,14 +30,72 @@ object ScoringEngine {
     data class Outcome(
         val ranked: List<ScoredMethod>,
         /** כמה תוצאות כדאי להציג בפועל - גדל כשהמשתמש רוצה להבין בעצמו. */
-        val suggestedVisibleCount: Int
+        val suggestedVisibleCount: Int,
+        /**
+         * וריאציות מומלצות לשיטות המובילות - "אתה מתאים לרמב"ם, אבל אמרת שחשוב
+         * לך שיהיו קשרים, אז תעשה רמב"ם עם קשרים". ראו suggestVariants().
+         */
+        val variantSuggestions: List<VariantSuggestion> = emptyList()
     )
+
+    data class VariantSuggestion(
+        val baseMethod: KnotMethod,
+        val variant: MethodVariant,
+        val reason: String
+    )
+
+    /**
+     * מוצא וריאציות שעונות על דרישה מפורשת של המשתמש טוב יותר משיטת הבסיס.
+     *
+     * זה הפער שהמשוב הצביע עליו: הרבה ממה שאנשים באמת קושרים הוא "שיטה מוכרת
+     * ועוד משהו" - רמב"ם עם קשרים, רמב"ם בחוט ראב"ד, רב נגן עם קשרי גר"א.
+     * בונה ההרכב האישי מאפשר את זה, אבל הוא מקום שצריך להגיע אליו ביוזמה;
+     * כאן ההצעה מגיעה מעצמה, בתוך התוצאות.
+     */
+    fun suggestVariants(
+        ranked: List<ScoredMethod>,
+        constraints: Set<Constraint>,
+        topN: Int = 3
+    ): List<VariantSuggestion> {
+        if (constraints.isEmpty()) return emptyList()
+        return ranked.take(topN).flatMap { sm ->
+            sm.method.variants.mapNotNull { v ->
+                val applied = v.applyTo(sm.method.composition)
+                val baseSatisfies = constraints.count { it.satisfiedBy(sm.method.composition) }
+                val variantSatisfies = constraints.count { it.satisfiedBy(applied) }
+                if (variantSatisfies > baseSatisfies) {
+                    val gained = constraints.filter {
+                        it.satisfiedBy(applied) && !it.satisfiedBy(sm.method.composition)
+                    }
+                    VariantSuggestion(
+                        baseMethod = sm.method,
+                        variant = v,
+                        reason = "מתאים לך ${sm.method.name}, אבל אמרת ש" +
+                            gained.joinToString(", ") { it.shortLabel } +
+                            ". ${v.name} עונה על זה."
+                    )
+                } else null
+            }
+        }.sortedByDescending { it.variant.commonness }
+    }
 
     fun score(
         methods: List<KnotMethod>,
         questions: List<Question>,
         answers: List<Answer>
     ): List<ScoredMethod> = evaluate(methods, questions, answers).ranked
+
+    /**
+     * דרישות מפורשות של המשתמש ("חשוב לי שיהיו קשרים כפולים"). בשונה מסליידר,
+     * זו אמירה חדה - ולכן היא משפיעה חזק, אבל עדיין **לא פוסלת** שיטה שלא
+     * עונה עליה. היא רק דוחפת אותה למטה, ומעלה את מי שכן עונה.
+     */
+    private fun applyConstraints(sm: ScoredMethod, constraints: Set<Constraint>): ScoredMethod {
+        if (constraints.isEmpty()) return sm
+        val met = constraints.count { it.satisfiedBy(sm.method.composition) }
+        val delta = (met.toDouble() / constraints.size - 0.5) * 24.0
+        return sm.copy(score = (sm.score + delta).coerceIn(0.0, 100.0))
+    }
 
     /**
      * מחיל את ההעדפה החזותית המפורשת. ההתאמה נמדדת מול ההרכב בפועל (איך השיטה
@@ -64,10 +122,10 @@ object ScoringEngine {
                         sm.method.composition.windingColor == WindingColor.MOSTLY_TEKHELET_FULL_CHULYA
             }
             if (matches) {
-                delta += LOOK_PREFERENCE_WEIGHT * beautyWeight * 6.0
+                delta += LOOK_PREFERENCE_WEIGHT * beautyWeight * 5.0
                 parts += "היא נראית בדיוק כמו שאמרת שיפה בעיניך"
             } else {
-                delta -= LOOK_PREFERENCE_WEIGHT * beautyWeight * 3.0
+                delta -= LOOK_PREFERENCE_WEIGHT * beautyWeight * 2.0
             }
         }
 
@@ -94,17 +152,20 @@ object ScoringEngine {
 
     /**
      * כמה משקל נותנים להעדפה החזותית המפורשת, ביחס לציון היופי הכללי של שיטה.
-     * גדול מ-1 בכוונה: "מה יפה בעיניך" הוא מידע אישי וישיר, בעוד שציון היופי
-     * של שיטה הוא הערכה כללית שלי - ולכן ההעדפה שלך גוברת עליה.
+     * גדול מ-1 כי "מה יפה בעיניך" הוא מידע אישי וישיר, בעוד שציון היופי של
+     * שיטה הוא הערכה כללית שלי. אבל לא גדול מדי: המשוב הצביע על כך שהמשקל
+     * הקודם גרם ליופי להשתלט על התוצאה. הוא גם מוכפל במשקל שהמשתמש נתן ליופי,
+     * כך שמי שהיופי לא מרכזי אצלו כמעט לא מושפע.
      */
-    private const val LOOK_PREFERENCE_WEIGHT = 2.0
+    private const val LOOK_PREFERENCE_WEIGHT = 1.3
 
     fun evaluate(
         methods: List<KnotMethod>,
         questions: List<Question>,
         answers: List<Answer>,
         lookPreference: LookPreference? = null,
-        knotPreference: KnotLookPreference? = null
+        knotPreference: KnotLookPreference? = null,
+        constraints: Set<Constraint> = emptySet()
     ): Outcome {
         val questionById = questions.associateBy { it.id }
         val answerByQuestionId = answers.associateBy { it.questionId }
@@ -118,9 +179,11 @@ object ScoringEngine {
         val ranked = methods
             .map { scoreOne(it, weights, affinityTags) }
             .map { applyLookPreference(it, lookPreference, knotPreference, beautyWeight) }
+            .map { applyConstraints(it, constraints) }
             .sortedByDescending { it.score }
 
         return Outcome(
+            variantSuggestions = suggestVariants(ranked, constraints),
             ranked = ranked,
             // גם כאן הסף יחסי ולא מוחלט, מאותו טעם - ראו buildNormalizedWeights
             suggestedVisibleCount =

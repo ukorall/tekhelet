@@ -29,7 +29,7 @@ import org.tekhelet.knotadvisor.ui.components.TzitzitVisual
 fun CompositionBuilderScreen(viewModel: AppViewModel) {
     val c = viewModel.customComposition
     val remarks = remember(c) { CompositionCoherence.review(c) }
-    val summary = remember(c) { GadilBuilder.summary(c) }
+    val summary = remember(c) { GadilBuilder.plan(c) }
     val closest = remember(c) { viewModel.closestMethod(c) }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {

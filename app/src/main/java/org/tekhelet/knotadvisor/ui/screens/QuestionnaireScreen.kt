@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.tekhelet.knotadvisor.model.Answer
+import org.tekhelet.knotadvisor.model.Constraint
 import org.tekhelet.knotadvisor.model.Question
 import org.tekhelet.knotadvisor.model.QuestionType
 import org.tekhelet.knotadvisor.ui.AppViewModel
@@ -54,6 +55,11 @@ fun QuestionnaireScreen(
             }
             Spacer(Modifier.height(24.dp))
 
+            ConstraintsSection(viewModel)
+            Spacer(Modifier.height(20.dp))
+            HorizontalDivider()
+            Spacer(Modifier.height(20.dp))
+
             questions.forEachIndexed { index, question ->
                 QuestionBlock(viewModel, question)
                 if (index != questions.lastIndex) {
@@ -70,6 +76,67 @@ fun QuestionnaireScreen(
                 modifier = Modifier.fillMaxWidth().padding(16.dp)
             ) {
                 Text("הצג תוצאות")
+            }
+        }
+    }
+}
+
+/**
+ * דרישות מפורשות על הקשירה עצמה.
+ *
+ * הסליידרים שואלים על ערכים ("כמה חשוב לך שיהיה זול"). זה שואל בשפה של מי
+ * שכבר יודע מה הוא רוצה. סימון כאן לא פוסל שום שיטה - הוא מזיז את הדירוג,
+ * ובעיקר מפעיל הצעת וריאציה: "מתאים לך רמב"ם, ואמרת שחשובים לך קשרים,
+ * אז תעשה רמב"ם עם קשרים".
+ */
+@Composable
+private fun ConstraintsSection(viewModel: AppViewModel) {
+    var open by remember { mutableStateOf(false) }
+    val chosen = viewModel.constraints
+
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(14.dp)) {
+            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Column(Modifier.weight(1f)) {
+                    Text("יש משהו שחשוב לך שיהיה?", style = MaterialTheme.typography.titleSmall)
+                    Text(
+                        if (chosen.isEmpty()) "לא חובה - אפשר לדלג"
+                        else "סימנת ${chosen.size}",
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                TextButton(onClick = { open = !open }) { Text(if (open) "סגור" else "פתח") }
+            }
+            if (open) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    "זה למי שכבר יודע מה הוא רוצה. שום דבר כאן לא פוסל שיטה - " +
+                        "זה רק מזיז את הדירוג, ולפעמים גורם לי להציע לך וריאציה " +
+                        "במקום שיטה אחרת לגמרי.",
+                    style = MaterialTheme.typography.bodySmall
+                )
+                Spacer(Modifier.height(10.dp))
+                Constraint.entries.forEach { c ->
+                    Column(Modifier.padding(bottom = 10.dp)) {
+                        Row(
+                            Modifier.fillMaxWidth()
+                                .selectable(c in chosen) { viewModel.toggleConstraint(c) },
+                            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                        ) {
+                            Checkbox(
+                                checked = c in chosen,
+                                onCheckedChange = { viewModel.toggleConstraint(c) }
+                            )
+                            Spacer(Modifier.width(6.dp))
+                            Text(c.label, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        Text(
+                            c.explanation,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(start = 44.dp)
+                        )
+                    }
+                }
             }
         }
     }

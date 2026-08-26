@@ -118,6 +118,22 @@ def main() -> int:
                     f"הערכים הקיימים: {sorted(enums.get(enum_name, set()))}"
                 )
 
+        # וריאציות משתמשות באותם enums, ולכן נבדקות באותה מידה
+        seen_variants = set()
+        for var in m.get("variants", []):
+            vid = var.get("id", "<ללא id>")
+            if vid in seen_variants:
+                problems.append(f"{mid}: וריאציה עם id כפול - {vid}")
+            seen_variants.add(vid)
+            if not var.get("name") or not var.get("rationale"):
+                problems.append(f"{mid}/{vid}: לוריאציה חסר name או rationale")
+            for field, enum_name in COMPOSITION_FIELDS.items():
+                v = var.get(field)
+                if v is not None and v not in enums.get(enum_name, set()):
+                    problems.append(
+                        f"{mid}/{vid}: {field}={v!r} אינו ערך חוקי של {enum_name}"
+                    )
+
     questions = json.loads((ASSETS / "questions.json").read_text(encoding="utf-8"))["questions"]
     for q in questions:
         qid = q.get("id", "<ללא id>")

@@ -61,7 +61,9 @@ fun MethodTreeScreen(
         KnotDivider(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp))
         Text(
             "זה התרשים שלי, רק שאפשר לרדת בו שלב-שלב. בכל צומת בוחרים ענף, " +
-                "והמפה מצטמצמת. שום שיטה לא נפסלת - מה שיוצא מהענף פשוט יורד למטה.",
+                "והמפה מצטמצמת. שום שיטה לא נפסלת - מה שיוצא מהענף פשוט יורד למטה. " +
+                "מוצגים כאן רק ענפים שיש להם שיטה בפועל; אפשרויות תיאורטיות נוספות " +
+                "קיימות בבונה ההרכב האישי.",
             style = MaterialTheme.typography.bodyMedium
         )
 
@@ -90,32 +92,37 @@ fun MethodTreeScreen(
 
         TreeNode(
             question = "כמה חוטי תכלת?",
-            branches = ThreadCount.entries.map { v ->
-                Branch(v, v.label, methods.count { it.composition.threadCount == v && survives(it, 0) })
+            branches = ThreadCount.entries.mapNotNull { v ->
+                val n = methods.count { it.composition.threadCount == v && survives(it, 0) }
+                val exists = methods.any { it.composition.threadCount == v }
+                if (exists) Branch(v, v.label, n) else null
             },
             selected = threadCount,
             onSelect = { threadCount = it }
         )
         TreeNode(
             question = "איך נראות הכריכות?",
-            branches = WindingColor.entries.map { v ->
-                Branch(v, v.label, methods.count { it.composition.windingColor == v && survives(it, 1) })
+            branches = WindingColor.entries.mapNotNull { v ->
+                val n = methods.count { it.composition.windingColor == v && survives(it, 1) }
+                if (methods.any { it.composition.windingColor == v }) Branch(v, v.label, n) else null
             },
             selected = windingColor,
             onSelect = { windingColor = it }
         )
         TreeNode(
             question = "כמה חוליות?",
-            branches = ChulyotCount.entries.map { v ->
-                Branch(v, v.label, methods.count { it.composition.chulyotCount == v && survives(it, 2) })
+            branches = ChulyotCount.entries.mapNotNull { v ->
+                val n = methods.count { it.composition.chulyotCount == v && survives(it, 2) }
+                if (methods.any { it.composition.chulyotCount == v }) Branch(v, v.label, n) else null
             },
             selected = chulyotCount,
             onSelect = { chulyotCount = it }
         )
         TreeNode(
             question = "ואיפה הקשרים?",
-            branches = KnotScheme.entries.map { v ->
-                Branch(v, v.label, methods.count { it.composition.knotScheme == v && survives(it, 3) })
+            branches = KnotScheme.entries.mapNotNull { v ->
+                val n = methods.count { it.composition.knotScheme == v && survives(it, 3) }
+                if (methods.any { it.composition.knotScheme == v }) Branch(v, v.label, n) else null
             },
             selected = knotScheme,
             onSelect = { knotScheme = it },

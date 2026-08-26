@@ -59,11 +59,51 @@ class ContentLoadingTest {
     @Test
     fun `every method renders a gadil without throwing`() {
         methods.forEach { m ->
-            val segments = GadilBuilder.build(m.composition)
-            assertTrue("${m.id}: הגדיל יצא ריק", segments.isNotEmpty())
-            val summary = GadilBuilder.summary(m.composition)
-            assertTrue("${m.id}: אין כריכות בכלל", summary.totalWinds > 0)
+            val plan = GadilBuilder.plan(m.composition)
+            assertTrue("${m.id}: הגדיל יצא ריק", plan.elements.isNotEmpty())
+            assertTrue("${m.id}: אין כריכות בכלל", plan.totalWinds > 0)
         }
+    }
+
+    /**
+     * המקרה שאוריאל תיאר במפורש, וזה הבוחן החשוב ביותר של המודל: בשיטה
+     * החסידית הקשרים נופלים **בתוך** חוליות ולא ביניהן, ולכן חוליה מתפצלת
+     * למקטע של 1 ומקטע של 2. אם הבדיקה הזו נופלת - המודל חזר להיות שגוי.
+     */
+    @Test
+    fun `chassidic method matches the exact spec`() {
+        val plan = GadilBuilder.plan(methods.first { it.id == "chassidic-arizal" }.composition)
+        val actual = plan.elements.mapNotNull {
+            when (it) {
+                is GadilBuilder.Element.Winds ->
+                    (if (it.piece.tekhelet) "תכלת" else "לבן") + it.piece.length
+                GadilBuilder.Element.Knot -> "קשר"
+                else -> null
+            }
+        }
+        val expected = listOf(
+            "קשר", "לבן1", "תכלת2", "תכלת3", "תכלת1",
+            "קשר", "תכלת2", "תכלת3", "תכלת3",
+            "קשר", "תכלת3", "תכלת3", "תכלת3", "תכלת2",
+            "קשר", "תכלת1", "תכלת3", "תכלת3", "תכלת3", "תכלת2", "לבן1",
+            "קשר"
+        )
+        assertEquals("השיטה החסידית לא תואמת את המפרט", expected, actual)
+        assertEquals("סה\"כ כריכות", 39, plan.totalWinds)
+        assertEquals("מספר קשרים", 5, plan.doubleKnots)
+    }
+
+    /** הרב נגן: שבע חוליות תכלת מול שש לבן, כפי שהוא כותב במאמרו. */
+    @Test
+    fun `rav nagen has seven tekhelet chulyot and six white`() {
+        val c = methods.first { it.id == "rav-nagen" }.composition
+        val plan = GadilBuilder.plan(c)
+        val byChulya = plan.elements.filterIsInstance<GadilBuilder.Element.Winds>()
+            .groupBy { it.piece.chulyaIndex }
+        val tekheletChulyot = byChulya.count { (_, pieces) -> pieces.any { it.piece.tekhelet } }
+        val whiteChulyot = byChulya.count { (_, pieces) -> pieces.none { it.piece.tekhelet } }
+        assertEquals("חוליות תכלת", 7, tekheletChulyot)
+        assertEquals("חוליות לבן", 6, whiteChulyot)
     }
 
     /**
@@ -73,10 +113,33 @@ class ContentLoadingTest {
     @Test
     fun `first and last winding are white in every method`() {
         methods.forEach { m ->
-            val winds = GadilBuilder.build(m.composition).filterIsInstance<GadilSegmentWind>()
-            if (winds.isEmpty()) return@forEach
-            assertTrue("${m.id}: הכריכה הראשונה אינה בלבן", !winds.first().tekhelet)
-            assertTrue("${m.id}: הכריכה האחרונה אינה בלבן", !winds.last().tekhelet)
+            val pieces = GadilBuilder.plan(m.composition).elements
+                .filterIsInstance<GadilBuilder.Element.Winds>()
+            if (pieces.isEmpty()) return@forEach
+            assertTrue("${m.id}: הכריכה הראשונה אינה בלבן", !pieces.first().piece.tekhelet)
+            assertTrue("${m.id}: הכריכה האחרונה אינה בלבן", !pieces.last().piece.tekhelet)
+        }
+    }
+
+    /** ההוראות חייבות להתקפל, אחרת 13 חוליות מייצרות עשרים שורות זהות. */
+    @Test
+    fun `repeated instruction steps collapse`() {
+        val raw = listOf("א", "ב", "ג", "ב", "ג", "ב", "ג", "ד")
+        val collapsed = TyingInstructions.collapse(raw)
+        assertTrue(
+            "לא התקפל: $collapsed",
+            collapsed.size < raw.size && collapsed.any { it.contains("חוזרים") }
+        )
+    }
+
+    @Test
+    fun `instructions stay a reasonable length for every method`() {
+        methods.forEach { m ->
+            val steps = TyingInstructions.generate(m.composition)
+            assertTrue(
+                "${m.id}: ${steps.size} שלבים - ארוך מדי, הקיפול לא עבד",
+                steps.size <= 30
+            )
         }
     }
 
@@ -158,6 +221,3 @@ class ContentLoadingTest {
         }
     }
 }
-
-/** קיצור קריאוּת לבדיקות - הטיפוס המקונן מוגדר בתוך GadilSegment. */
-private typealias GadilSegmentWind = org.tekhelet.knotadvisor.logic.GadilSegment.Wind

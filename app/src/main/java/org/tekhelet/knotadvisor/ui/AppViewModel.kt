@@ -56,8 +56,19 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     var lookPreference by mutableStateOf<LookPreference?>(null); private set
     var knotLookPreference by mutableStateOf<KnotLookPreference?>(null); private set
 
+    /** דרישות מפורשות שהמשתמש סימן בשאלון. ראו Constraint.kt. */
+    var constraints by mutableStateOf<Set<Constraint>>(emptySet()); private set
+
+    /** הצעות וריאציה שנוצרו יחד עם התוצאות. */
+    var variantSuggestions by mutableStateOf<List<ScoringEngine.VariantSuggestion>>(emptyList())
+        private set
+
     fun chooseLook(p: LookPreference) { lookPreference = p }
     fun chooseKnotLook(p: KnotLookPreference) { knotLookPreference = p }
+
+    fun toggleConstraint(c: Constraint) {
+        constraints = if (c in constraints) constraints - c else constraints + c
+    }
 
     val history = historyStore.consultations
 
@@ -76,10 +87,12 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         val outcome = ScoringEngine.evaluate(
             allMethods, allQuestions, answers.values.toList(),
             lookPreference = lookPreference,
-            knotPreference = knotLookPreference
+            knotPreference = knotLookPreference,
+            constraints = constraints
         )
         results = outcome.ranked
         visibleResultCount = outcome.suggestedVisibleCount
+        variantSuggestions = outcome.variantSuggestions
         showWindCountTieBreaker = ScoringEngine.needsWindCountTieBreaker(outcome.ranked)
         showVisualTieBreaker = ScoringEngine.needsVisualTieBreaker(outcome.ranked)
     }
@@ -95,6 +108,7 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
         answers = emptyMap(); results = emptyList()
         showWindCountTieBreaker = false; showVisualTieBreaker = false
         lookPreference = null; knotLookPreference = null
+        constraints = emptySet(); variantSuggestions = emptyList()
     }
 
     // --- מתייעץ ---
@@ -148,6 +162,10 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadCompositionFrom(method: KnotMethod) { customComposition = method.composition }
+
+    fun loadCompositionFrom(method: KnotMethod, variant: MethodVariant) {
+        customComposition = variant.applyTo(method.composition)
+    }
 
     /** השיטה המוכרת הקרובה ביותר להרכב שנבנה, וכמה היא קרובה (0-5). */
     fun closestMethod(c: KnotComposition = customComposition): Pair<KnotMethod, Int>? =

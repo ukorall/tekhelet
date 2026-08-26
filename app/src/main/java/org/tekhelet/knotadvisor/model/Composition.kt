@@ -29,8 +29,12 @@ data class KnotComposition(
     val chulyotCount: ChulyotCount? = null,
     val chulyaForm: ChulyaForm? = null,
     val knotScheme: KnotScheme? = null,
-    /** רצף הכריכות בפועל, אם ידוע במדויק. למשל [5,5,6,6,6,6,6] אצל הרב אריאל. */
-    val windsPerChulya: List<Int> = emptyList(),
+    /**
+     * כמה כריכות בין קשר לקשר, כשזה מוגדר במפורש. למשל [7,9,11,13] אצל הראב"ד,
+     * או [7,8,11,13] בשיטה החסידית ובמנהג הלבן האשכנזי.
+     * ריק = נגזר מ-chulyotCount (חוליות של שלוש כריכות).
+     */
+    val windGroups: List<Int> = emptyList(),
     /** הערה חופשית על ההרכב, למשל אי-ודאות או וריאציות מקובלות. */
     val note: String? = null
 )
@@ -59,7 +63,11 @@ enum class WindingColor(val label: String, val attribution: String) {
         "רוב החוליות בתכלת; החוליה הראשונה והאחרונה כולה לבן", "לפי הסוברים שמתחיל בחוליה שלמה"
     ),
     ALTERNATING_CHULYOT(
-        "חוליות תכלת ולבן לסירוגין, מתחיל ומסיים בלבן", "רב עמרם גאון, תוספות, הגר\"א"
+        "חוליות לסירוגין, החוליה הראשונה והאחרונה לבנות", "רב עמרם גאון, תוספות, הגר\"א"
+    ),
+    ALTERNATING_CHULYOT_TEKHELET_FIRST(
+        "חוליות לסירוגין, החוליה הראשונה והאחרונה בתכלת",
+        "הרב יעקב נגן - ההיפך מרב עמרם גאון; הכריכה הראשונה והאחרונה עדיין לבנות"
     ),
     ALTERNATING_WINDS(
         "כריכות תכלת ולבן לסירוגין בתוך כל חוליה", "ראב\"ד"
@@ -71,8 +79,7 @@ enum class WindingColor(val label: String, val attribution: String) {
 enum class ChulyotCount(val label: String) {
     SEVEN("7 חוליות"),
     THIRTEEN("13 חוליות"),
-    SEVEN_OR_THIRTEEN("7 או 13 חוליות"),
-    FOUR("4 חוליות")
+    SEVEN_OR_THIRTEEN("7 או 13 חוליות")
 }
 
 /**
